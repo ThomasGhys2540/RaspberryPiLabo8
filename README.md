@@ -8,11 +8,11 @@
 ## Components
 ### Broker
 - MQTT
-### GameEngine
+### Game engine
 - Maakt de keuze welke speler met welke racket speelt
 - Houd de achterliggende logica, events en acties bij 
 - Communiceert via de broker
-### Gameclient
+### Game client
 - Tekenen grafische objecten in een GUI
 - 3 drukknoppen om het spel te besturen
   - 1 knop voor naar boven te bewegen

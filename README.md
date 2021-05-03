@@ -21,3 +21,7 @@
 - 2 Led's voor aanduiding welke speler je bent
 - 1 Led die zal knipperen net voor het spel start
 - Grafische button om het spel te starten
+
+## Libraries used
+- Tkinter
+- RPi.GPIO

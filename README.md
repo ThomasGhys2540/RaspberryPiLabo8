@@ -5,13 +5,14 @@
 - Ghys Thomas
 - Van den Broeck Sarah
 
-## Broker
+## Components
+### Broker
 - MQTT
-## GameEngine
+### GameEngine
 - maakt de keuze welke speler met welke racket speelt
 - Houd de achterliggende logica, events en acties bij 
 - communiceert via de broker
-## Gameclient
+### Gameclient
 - tekenen grafische objecten in een GUI
 - 3 drukknoppen om het spel te besturen
   - 1 knop voor naar boven te bewegen

@@ -18,7 +18,9 @@ class Point:
 	def __sub__(self, other)
 		if type(other) == Vector
 			return Point(self.x - other.x, self.y - other.y)
-		raise TypeError("Only a Vector can be subtracted from a Point")
+		if type(other) == Point
+			return sqrt(pow(self.x - other.x, 2) + pow(self.y - other.y, 2))
+		raise TypeError(f"{type(other)}cannot be subtracted from a Point")
 
 	def __isub__(self, other)
 		self = self - other

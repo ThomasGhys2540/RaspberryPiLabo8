@@ -1,3 +1,4 @@
+
 #!/usr/bin/python3
 
 class Point:
@@ -121,12 +122,16 @@ class Circle:
 		return self
 
 class Rectangle:
-	def __init__(pos, length, width):
+	def __init__(pos, height, width):
 		if not type(pos) == Point:
 			raise TypeError("'pos' must be a Point")
 		self.pos = pos
-		self.length = length
+		self.height = height
 		self.width = width
+		self.left = pos.x
+		self.right = pos.x + width
+		self.top = pos.y
+		self.bottom = pos.y + height
 
 	def __add__(self, other):
 		if type(other) == Vector:

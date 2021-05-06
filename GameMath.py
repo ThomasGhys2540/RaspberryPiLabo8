@@ -1,0 +1,156 @@
+#!/usr/bin/python3
+
+class Point:
+	def __init__(x, y):
+		self.x = x
+		self.y = y
+
+	def __add__(self, other):
+		if type(other) == Vector:
+			return Point(self.x + other.x, self.y + other.y)
+		raise TypeError("Only a Vector can be added to a Point")
+
+	def __iadd__(self, other):
+		self = self + other
+		return self
+
+	def __sub__(self, other)
+		if type(other) == Vector
+			return Point(self.x - other.x, self.y - other.y)
+		raise TypeError("Only a Vector can be subtracted from a Point")
+
+	def __isub__(self, other)
+		self = self - other
+		return self
+
+#class Vector:
+	def __init__(x, y):
+		self.x = x
+		self.y = y
+
+	def __add__(self, other):
+		if type(other) == Vector:
+			return Vector(self.x + other.x, self.y + other.y)
+		raise TypeError("Only a Vector can be added to another Vector")
+
+	def __radd__(self, other):
+		return self + other
+
+	def __iadd__(self, other):
+		self = self + other
+		return self
+
+	def __sub__(self, other):
+		if type(other) == Vector:
+			return Vector(self.x - other.x, other.y - self.y)
+		raise TypeError("Only a Vector can be subtracted from another Vector")
+
+	def __rsub__(self, other):
+		if type(other) == Point:
+			return Point(other.x - self.x, other.y - self.y)
+		if type(other) == Vector:
+			return Vector(other.x - self.x, other.y - self.y)
+		raise TypeError("A Vector can only be subtracted from another Vector or a Point")
+
+	def __isub__(self, other):
+		if type(other) == Vector:
+			self = self - other
+			return self
+		raise TypeError("Only a Vector can be subtracted from another Vector")
+
+	def __mul__(self, other):
+		if type(other) == int or type(other) == float:
+			return Vector(self.x * other, self.y * other)
+		raise TypeError("Only a number can be multiplied with a Vector")
+
+	def __rmul__(self, other):
+		return self * other
+
+	def __imul__(self, other):
+		self = self * other
+		return self
+
+	def __neg__(self):
+		return Vector(-self.x, -self.y)
+
+	def __abs__(self):
+		return Vector(abs(self.x), abs(self.y))
+
+	def __invert__(self):
+		return -self
+
+class Circle:
+	def __init__(pos, r):
+		if not type(pos) == Point:
+			raise TypeError("'pos' must be a Point")
+		self.pos = pos
+		self.r = r
+
+	def __add__(self, other):
+		if type(other) == Vector:
+			return Circle(self.pos + other, self.r)
+		if type(other) == int or type(other) == float:
+			return Circle(self.pos, self.r + other)
+		raise TypeError(f"{type(other)} cannot be added to a Circle")
+
+	def __iadd__(self, other):
+		self = self + other
+		return self
+
+	def __sub__(self, other):
+		if type(other) == Vector:
+			return Circle(self.pos - other, self.r)
+		if type(other) == int or type(other) == float:
+			return Circle(self.pos, self.r - other)
+		raise TypeError(f"{type(other)} cannot be subtracted from a Circle")
+
+	def __isub__(self, other):
+		self = self - other
+		return self
+
+	def __mul__(self, other):
+		if type(other) == int or type(other) == float:
+			return Circle(self.pos, self.r * other)
+		raise TypeError(f"Circle cannot be multiplied by {type(other)}")
+
+	def __rmul__(self, other)
+		return self * other
+
+	def __imul__(self, other):
+		self = self * other
+		return self
+
+class Rectangle:
+	def __init__(pos, length, width):
+		if not type(pos) == Point:
+			raise TypeError("'pos' must be a Point")
+		self.pos = pos
+		self.length = length
+		self.width = width
+
+	def __add__(self, other):
+		if type(other) == Vector:
+			return Rectangle(self.pos + other, self.length, self.width)
+		raise TypeError(f"{type(other)} cannot be added to Rectangle")
+
+	def __iadd__(self, other):
+		self = self + other
+		return self
+
+	def __sub__(self, other):
+		if type(other) == Vector:
+			return Rectangle(self.pos - other, self.length, self.width)
+		raise TypeError(f"{type(other)} cannot be subtracted from Rectangle")
+
+	def __isub__(self, other):
+		self = self - other
+		return self
+
+	def __mul__(self, other):
+		if type(other) == int or type(other) == float:
+			return Rectangle(self.pos, self.length * other, self.width * other)
+		raise TypeError(f"Rectangle cannot be multiplied by {type(other)}")
+
+	def __imul__(self, other):
+		self = self * other
+		return self

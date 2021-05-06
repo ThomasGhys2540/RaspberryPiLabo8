@@ -23,7 +23,7 @@ class Point:
 		self = self - other
 		return self
 
-#class Vector:
+class Vector:
 	def __init__(x, y):
 		self.x = x
 		self.y = y

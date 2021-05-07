@@ -1,8 +1,9 @@
-
 #!/usr/bin/python3
 
+from math import sqrt
+
 class Point:
-	def __init__(x, y):
+	def __init__(self, x, y):
 		self.x = x
 		self.y = y
 
@@ -15,21 +16,21 @@ class Point:
 		self = self + other
 		return self
 
-	def __sub__(self, other)
-		if type(other) == Vector
+	def __sub__(self, other):
+		if type(other) == Vector:
 			return Point(self.x - other.x, self.y - other.y)
-		if type(other) == Point
+		if type(other) == Point:
 			return Vector(self.x - other.x, self.y - other.y)
-		raise TypeError(f"{type(other)}cannot be subtracted from a Point")
+		raise TypeError(type(other) + " cannot be subtracted from a Point")
 
-	def __isub__(self, other)
-		if type(other) == Vector
+	def __isub__(self, other):
+		if type(other) == Vector:
 			self = self - other
 			return self
-		raise TypeError(f"Point - {type(other)} would not return a Point")
+		raise TypeError("Point - " + {type(other)}  + " would not return a Point")
 
 class Vector:
-	def __init__(x, y):
+	def __init__(self, x, y):
 		self.x = x
 		self.y = y
 		self.magnitude = sqrt(pow(x, 2) + pow(y, 2))
@@ -86,7 +87,7 @@ class Vector:
 		return -self
 
 class Circle:
-	def __init__(pos, r):
+	def __init__(self, pos, r):
 		if not type(pos) == Point:
 			raise TypeError("'pos' must be a Point")
 		self.pos = pos
@@ -97,7 +98,7 @@ class Circle:
 			return Circle(self.pos + other, self.r)
 		if type(other) == int or type(other) == float:
 			return Circle(self.pos, self.r + other)
-		raise TypeError(f"{type(other)} cannot be added to a Circle")
+		raise TypeError(type(other) + " cannot be added to a Circle")
 
 	def __iadd__(self, other):
 		self = self + other
@@ -108,7 +109,7 @@ class Circle:
 			return Circle(self.pos - other, self.r)
 		if type(other) == int or type(other) == float:
 			return Circle(self.pos, self.r - other)
-		raise TypeError(f"{type(other)} cannot be subtracted from a Circle")
+		raise TypeError(type(other) + " cannot be subtracted from a Circle")
 
 	def __isub__(self, other):
 		self = self - other
@@ -117,9 +118,9 @@ class Circle:
 	def __mul__(self, other):
 		if type(other) == int or type(other) == float:
 			return Circle(self.pos, self.r * other)
-		raise TypeError(f"Circle cannot be multiplied by {type(other)}")
+		raise TypeError("Circle cannot be multiplied by " + type(other))
 
-	def __rmul__(self, other)
+	def __rmul__(self, other):
 		return self * other
 
 	def __imul__(self, other):
@@ -127,7 +128,7 @@ class Circle:
 		return self
 
 class Rectangle:
-	def __init__(pos, height, width):
+	def __init__(self, pos, height, width):
 		if not type(pos) == Point:
 			raise TypeError("'pos' must be a Point")
 		self.pos = pos
@@ -141,7 +142,7 @@ class Rectangle:
 	def __add__(self, other):
 		if type(other) == Vector:
 			return Rectangle(self.pos + other, self.length, self.width)
-		raise TypeError(f"{type(other)} cannot be added to Rectangle")
+		raise TypeError(type(other) + " cannot be added to Rectangle")
 
 	def __iadd__(self, other):
 		self = self + other
@@ -150,7 +151,7 @@ class Rectangle:
 	def __sub__(self, other):
 		if type(other) == Vector:
 			return Rectangle(self.pos - other, self.length, self.width)
-		raise TypeError(f"{type(other)} cannot be subtracted from Rectangle")
+		raise TypeError(type(other) + " cannot be subtracted from Rectangle")
 
 	def __isub__(self, other):
 		self = self - other
@@ -159,7 +160,7 @@ class Rectangle:
 	def __mul__(self, other):
 		if type(other) == int or type(other) == float:
 			return Rectangle(self.pos, self.length * other, self.width * other)
-		raise TypeError(f"Rectangle cannot be multiplied by {type(other)}")
+		raise TypeError("Rectangle cannot be multiplied by " + type(other))
 
 	def __imul__(self, other):
 		self = self * other

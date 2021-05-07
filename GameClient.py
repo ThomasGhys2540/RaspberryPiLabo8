@@ -4,9 +4,9 @@ import RPi.GPIO as GPIO
 import time
 
 GPIO.setmode(GPIO.BCM)
-GPIO.setup(2, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-GPIO.setup(3, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-GPIO.setup(4, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+GPIO.setup(16, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+GPIO.setup(20, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+GPIO.setup(21, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 GPIO.setup(14, GPIO.OUT, initial=GPIO.LOW)
 
 isPlaying = True
@@ -14,15 +14,21 @@ speed = False
 temp = 0
 
 def determineInput():
-    if GPIO.input(2):
+    if GPIO.input(16):
+        var = GPIO.input(16)
+        print(var)
+        var = GPIO.input(20)
+        print(var)
+        var = GPIO.input(21)
+        print(var)
         print("Omhoog")
         global temp 
         temp += 1
         return
-    elif GPIO.input(3):
+    elif GPIO.input(20):
         print("Omlaag")
         return
-    elif GPIO.input(4):
+    elif GPIO.input(21):
         speed = not speed
         if (speed == True):
             print("Snel")

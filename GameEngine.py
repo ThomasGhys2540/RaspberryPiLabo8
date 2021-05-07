@@ -1,10 +1,10 @@
 #!/usr/bin/python3
 
 #import GameMath
-import Point from GameMath as Point
-import Vector from GameMath as Vector
-import Circle from GameMath as Circle
-import Rectangle from GameMath as Rectangle
+from GameMath import Point
+from GameMath import Vector
+from GameMath import Circle
+from GameMath import Rectangle
 
 def CheckBallCollision(ball, paddle):
 	#Ball Y in paddle range
@@ -37,6 +37,6 @@ def CheckBallCollision(ball, paddle):
 			ball.vector = Vector(xFact * (1 - (yDif / ball.r)) * abs(ball.vector.x), -(yDif / ball.r) * abs(ball.vector.y))
 
 class Ball(Circle):
-	def __oninit__(pos, r, vector = Vector(0, 0)):
-		super().__init__(pos, r)
+	def __init__(self, pos, r, vector = Vector(0, 0)):
 		self.vector = vector
+		super(Ball, self).__init__(pos, r)

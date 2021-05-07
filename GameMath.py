@@ -1,3 +1,4 @@
+
 #!/usr/bin/python3
 
 class Point:
@@ -17,16 +18,21 @@ class Point:
 	def __sub__(self, other)
 		if type(other) == Vector
 			return Point(self.x - other.x, self.y - other.y)
-		raise TypeError("Only a Vector can be subtracted from a Point")
+		if type(other) == Point
+			return Vector(self.x - other.x, self.y - other.y)
+		raise TypeError(f"{type(other)}cannot be subtracted from a Point")
 
 	def __isub__(self, other)
-		self = self - other
-		return self
+		if type(other) == Vector
+			self = self - other
+			return self
+		raise TypeError(f"Point - {type(other)} would not return a Point")
 
-#class Vector:
+class Vector:
 	def __init__(x, y):
 		self.x = x
 		self.y = y
+		self.magnitude = sqrt(pow(x, 2) + pow(y, 2))
 
 	def __add__(self, other):
 		if type(other) == Vector:
@@ -121,12 +127,16 @@ class Circle:
 		return self
 
 class Rectangle:
-	def __init__(pos, length, width):
+	def __init__(pos, height, width):
 		if not type(pos) == Point:
 			raise TypeError("'pos' must be a Point")
 		self.pos = pos
-		self.length = length
+		self.height = height
 		self.width = width
+		self.left = pos.x
+		self.right = pos.x + width
+		self.top = pos.y
+		self.bottom = pos.y + height
 
 	def __add__(self, other):
 		if type(other) == Vector:

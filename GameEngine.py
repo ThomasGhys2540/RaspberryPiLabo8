@@ -17,7 +17,7 @@ def CheckBallCollision(ball, paddle):
 				ball.vector = Vector(-abs(ball.vector.x), ball.vector.y)
 	#Ball Y under paddle range
 	elif ball.pos.y > paddle.bottom:
-		if ball.pos - Point(paddle.right, paddle.bottom) < ball.r:
+		if (ball.pos - Point(paddle.right, paddle.bottom)).magnitude < ball.r:
 			xFact = 0
 			if ball.pos.x > paddel.right:
 				xFact = 1
@@ -27,7 +27,7 @@ def CheckBallCollision(ball, paddle):
 			ball.vector = Vector(xFact * (1 - (yDif / ball.r)) * abs(ball.vector.x), (yDif / ball.r) * abs(ball.vector.y))
 	#Ball Y above paddle range
 	elif ball.pos.y < paddle.top:
-		if ball.pos - Point(paddle.right, paddle.top) < ball.r:
+		if (ball.pos - Point(paddle.right, paddle.top)).magnitude < ball.r:
 			xFact = 0
 			if ball.pos.x > paddle.right:
 				xFact = 1

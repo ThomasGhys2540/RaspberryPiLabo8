@@ -86,6 +86,12 @@ class Vector:
 	def __invert__(self):
 		return -self
 
+	def magnitude(self):
+		return sqrt((self.x * self.x) + (self.y * self.y))
+
+	def unitVect(self):
+		return Vector(self.x / self.magnitude(), self.y / self.magnitude)
+		
 class Circle:
 	def __init__(self, pos, r):
 		if not type(pos) == Point:

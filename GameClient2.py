@@ -74,7 +74,7 @@ class PongApp(tk.Tk):
         client = paho.Client()
         
         client.on_message = on_message
-        client.connect("broker.mqttdashboard.com", 1883)
+        client.connect("84.197.165.225", 667)
         client.subscribe("broker/groep9")
 
         while !GUIStarted:

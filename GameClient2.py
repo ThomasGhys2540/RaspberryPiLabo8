@@ -1,5 +1,7 @@
 # Multi-frame tkinter application v2.3
 import tkinter as tk
+import paho.mqtt.client as paho
+import Broker
 
 
 class PongApp(tk.Tk):
@@ -7,6 +9,13 @@ class PongApp(tk.Tk):
         tk.Tk.__init__(self)
         self._frame = None
         self.switch_frame(MainMenu)
+        client = paho.Client()
+        client.on_connect = Broker.on_connect
+        client.on_subscribe = Broker.on_subscribe
+        client.on_message = Broker.on_message
+        client.on_publish = Broker.on_publish
+        client.connect("broker.mqttdashboard.com", 1883)
+        client.subscribe("broker/groep9")
 
     def switch_frame(self, frame_class):
         new_frame = frame_class(self)

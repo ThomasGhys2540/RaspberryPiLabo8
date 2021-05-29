@@ -7,6 +7,10 @@ from GameMath import Vector
 from GameMath import Circle
 from GameMath import Rectangle
 
+#import other
+import paho.mqtt.client as paho
+from threading import Thread
+
 def CheckBallCollision(ball, paddle):
 	#Ball Y in paddle range
 	if ball.pos.y > paddle.top and ball.pos.y < paddle.bottom:
@@ -42,6 +46,21 @@ class Ball(Circle):
 		self.vector = vector
 		super(Ball, self).__init__(pos, r)
 
+class Game:
+	def __init__(self, ball: Ball, paddleL: Rectangle, paddleR: Rectangle):
+		self.ball = ball
+		self.paddleL = paddleL
+		self.paddleR = paddleR
+		self.p1Connected = false
+		self.p2Connected = false
+
+	def MQTT():
+		client = paho.Client()
+
+		client.connect("")
+		def lobby():
+			
+
 ballPos = Point(WINDOWWIDTH / 2, WINDOWHEIGHT / 2)
 LPaddlePos = Point(0, (WINDOWHEIGHT / 2) - (PADDLEHEIGHT / 2))
 RPaddlePos = Point(WINDOWWIDTH - PADDLEWIDTH, (WINDOWHEIGHT / 2) - (PADDLEHEIGHT / 2))
@@ -51,6 +70,3 @@ startVector = Vector(random, random).unitVect() * BALLSTARTSPEED
 ball = Ball(ballPos, BALLWIDTH / 2, startVector)
 LPaddle = Rectangle(LPaddlePos, PADDLEHEIGHT, PADDLEWIDTH)
 RPaddle = Rectangle(RPaddlePos, PADDLEHEIGHT, PADDLEWIDTH)
-
-P1Connected = false;
-P2Connected = false;

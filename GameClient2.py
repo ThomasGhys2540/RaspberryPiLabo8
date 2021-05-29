@@ -1,6 +1,7 @@
 # Multi-frame tkinter application v2.3
 import tkinter as tk
 
+
 class PongApp(tk.Tk):
     def __init__(self):
         tk.Tk.__init__(self)
@@ -20,11 +21,27 @@ class MainMenu(tk.Frame):
         tk.Label(self, text="Welcome to the Main Menu", bg="black", fg="white").pack(side="top", fill="x", pady=10)
         tk.Button(self, text="Start Game", command=lambda: master.switch_frame(GameScreen), bg="red").pack()
 
-class GameScreen(tk.Frame):
+class GameScreen(tk.Frame):      
     def __init__(self, master):
-        tk.Frame.__init__(self, master, bg="black")
+        self.LPaddlePosY = 300
+        self.RPaddlePosY = 300
+        self.LPaddlePosYBottom = self.LPaddlePosY + 200
+        self.RPaddlePosYBottom = self.RPaddlePosY + 200
         
+        tk.Frame.__init__(self, master, bg="black")
+        self.canvas = tk.Canvas(master, bg="black", width=1080, height=800)
+        self.LeftPaddle = self.canvas.create_rectangle(0, self.LPaddlePosY, 50, self.LPaddlePosYBottom, fill="white")
+        self.RightPaddle = self.canvas.create_rectangle(1030, self.RPaddlePosY, 1080, self.RPaddlePosYBottom, fill="red")
+        self.Ball = self.canvas.create_oval(80,300,130,350,fill="blue")
+        self.canvas.pack()
         tk.Button(self, text="End the Game!", command=lambda: master.switch_frame(VictoryScreen), bg="red").pack()
+        tk.Button(self, text="Move you dipshit", command=lambda: self.Movement(), bg="red").pack()
+        self.Movement()
+
+    def Movement(self):
+        self.x = 0
+        self.y = 5
+        self.canvas.move(self.LeftPaddle, self.x, self.y)
 
 class VictoryScreen(tk.Frame):
     def __init__(self, master):

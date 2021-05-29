@@ -13,8 +13,8 @@ from threading import Thread
 import random
 from time import sleep
 
-WINDOWWIDTH = 1080
 WINDOWHEIGHT = 800
+WINDOWWIDTH = 1080
 
 PADDLEHEIGHT = 200
 PADDLEWIDTH = 50
@@ -24,9 +24,7 @@ BALLSTARTSPEED = 5
 
 FPS = 10
 
-invertOrNotToInvertThatsTheQuestion = [-1, 1]
-
-def CheckBallCollision(ball, paddle):
+def CheckBallPaddleCollision(ball, paddle):
 	#Ball Y in paddle range
 	if ball.pos.y > paddle.top and ball.pos.y < paddle.bottom:
 		if ball.pos.x > paddle.left:

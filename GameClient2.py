@@ -1,42 +1,145 @@
 #!/usr/bin/python3
+# Multi-frame tkinter application v2.3
+import tkinter as tk
+import paho.mqtt.client as paho
+import Broker
+from threading import Thread
+import RPi.GPIO as GPIO
 
-import gpiozero
-import time
+GPIO.setmode(GPIO.BCM)
+GPIO.setup(3, GPIO.IN)
+GPIO.setup(5, GPIO.IN)
+GPIO.setup(7, GPIO.IN)
 
-button1 = gpiozero.InputDevice(16)
-button2 = gpiozero.InputDevice(20)
-button3 = gpiozero.InputDevice(21)
-led = gpiozero.LED(14)
+class PongApp(tk.Tk):
+    def __init__(self):
+        print("lkdqjf")
+        tk.Tk.__init__(self)
+        self._frame = None
+        self.switch_frame(MainMenu)
 
-isPlaying = True
-speed = False
-temp = 0
+        self.paddle = " "
+        self.direction = "S"
+        self.speed = 0
+        self.askedSide = False
+        self.gameStarted = False
+        self.GUIStarted = False
 
-def determineInput():
-	if button1.value:
-		print("Omhoog")
-		return
-	elif button2.value:
-		print("Omlaag")
-		return
-	elif button3.value:
-		global speed
-		if speed:
-			print("Snel")
-		elif not speed:
-			print("Traag")
+    def switch_frame(self, frame_class):
+        new_frame = frame_class(self)
+        if self._frame is not None:
+            self._frame.destroy()
+        self._frame = new_frame
+        self._frame.pack()
 
-x = 0
-while x < 3:
-	led.on()
-	time.sleep(1)
-	led.off()
-	time.sleep(1)
-	x += 1
+    def MQTT(self):
+        print('ldkqsjfl')
+        def on_message(client, callback, msg):
+            if paddle == " ":
+                print("test")
+                paddle = str(msg.payload)[1]
+                askedSide = False
+                client.publish("broker/groep9", "Connected", qos=1)
+            elif str(msg.payload) == "Start":
+                gameStarted = True
+                
+        def UpdateBroker():
+            message = paddle + direction + str(speed)
+            client.publish("broker/groep9", message)
+        
+        def upButton(channel):
+            direction = "U"
+            UpdateBroker()
+            
+        def downButton(channel):
+            direction = "D"
+            UpdateBroker()
 
-while (isPlaying):
-    determineInput()
-    if (temp == 5):
-        led.off()
+        def ReleaseUpButton(channel):
+            if direction == "U":
+                direction = "S"
+                UpdateBroker()
+
+        def ReleaseDownButton(channel):
+            if direction == "D":
+                direction = "S"
+                UpdateBroker()
+
+        def SpeedButtonSwitch(channel):
+            if speed == 0:
+                speed = 1
+            else:
+                speed = 0
+            UpdateBroker()
+            
+        client = paho.Client()
+        
+        client.connect("84.197.165.225", port=667)
+        client.subscribe("broker/groep9")
+
+        while not self.GUIStarted:
+            #print("WaitingForStart")
+            pass
+
+        client.publish("broker/groep9", "Connect")
+
+        while not self.gameStarted:
+            print("MQTT Waiting")
+
+        GPIO.add_event_detect(3, GPIO.RISING, callback=upButton, bouncetime=300)
+        GPIO.add_event_detect(3, GPIO.FALLING, callback=ReleaseUpButton, bouncetime=300)
+
+        GPIO.add_event_detect(5, GPIO.RISING, callback=downButton, bouncetime=300)
+        GPIO.add_event_detect(5, GPIO.FALLING, callback=ReleaseDownButton, bouncetime=300)
+
+        GPIO.add_event_detect(7, GPIO.RISING, callback=SpeedButtonSwitch, bouncetime=300)
+
+        while self.gamestarted:
+            print()
         GPIO.cleanup()
-        sys.exit()
+
+class MainMenu(tk.Frame):
+    def __init__(self, master):
+        tk.Frame.__init__(self, master, bg="black")
+        tk.Label(self, text="Welcome to the Main Menu", bg="black", fg="white").pack(side="top", fill="x", pady=10)
+        tk.Button(self, text="Start Game", command=lambda: master.switch_frame(GameScreen), bg="red").pack()
+        self.job = Thread(target=master.MQTT)
+        print("sdl")
+        self.job.start()
+
+class GameScreen(tk.Frame):      
+    def __init__(self, master):
+        self.LPaddlePosY = 300
+        self.RPaddlePosY = 300
+        self.LPaddlePosYBottom = self.LPaddlePosY + 200
+        self.RPaddlePosYBottom = self.RPaddlePosY + 200
+
+        master.GUIStarted = True
+
+        while not master.gameStarted:
+            print("GUI Waiting")
+        
+        tk.Frame.__init__(self, master, bg="black")
+        self.canvas = tk.Canvas(master, bg="black", width=1080, height=800)
+        self.LeftPaddle = self.canvas.create_rectangle(0, self.LPaddlePosY, 50, self.LPaddlePosYBottom, fill="white")
+        self.RightPaddle = self.canvas.create_rectangle(1030, self.RPaddlePosY, 1080, self.RPaddlePosYBottom, fill="red")
+        self.Ball = self.canvas.create_oval(80,300,130,350,fill="blue")
+        self.canvas.pack()
+        tk.Button(self, text="End the Game!", command=lambda: master.switch_frame(VictoryScreen), bg="red").pack()
+        tk.Button(self, text="Move you dipshit", command=lambda: self.Movement(), bg="red").pack()
+        self.Movement()
+
+    def Movement(self):
+        self.x = 0
+        self.y = 5
+        self.canvas.move(self.LeftPaddle, self.x, self.y)
+
+class VictoryScreen(tk.Frame):
+    def __init__(self, master):
+        tk.Frame.__init__(self, master, bg="black")
+        tk.Label(self, text="This is the end there is nothing beyond here", bg="black", fg="white").pack(side="top", fill="x", pady=10)
+        tk.Button(self, text="Return to the Main menu", command=lambda: master.switch_frame(MainMenu), bg="red").pack()
+
+if __name__ == "__main__":
+    app = PongApp()
+    app.mainloop()

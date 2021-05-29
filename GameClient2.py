@@ -42,6 +42,7 @@ class PongApp(tk.Tk):
                 client.publish("broker/groep9", "Connected", qos=1)
             elif str(msg.payload) == "Start":
                 gameStarted = True
+                
         def UpdateBroker():
             message = paddle + direction + str(speed)
             client.publish("broker/groep9", message)
@@ -73,7 +74,6 @@ class PongApp(tk.Tk):
             
         client = paho.Client()
         
-        client.on_message = on_message
         client.connect("84.197.165.225", 667)
         client.subscribe("broker/groep9")
 

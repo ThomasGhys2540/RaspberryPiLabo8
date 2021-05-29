@@ -98,6 +98,5 @@ def remevents():
  GPIO.remove_event_detect(button6)
 
 addevents()
-client.loop_forever()
 remevents()
 GPIO.cleanup()

@@ -25,10 +25,6 @@ class PongApp(tk.Tk):
         self.gameStarted = False
         self.GUIStarted = False
 
-        self.job = Thread(target=MQTT)
-        print("sdl")
-        self.job.start()
-
     def switch_frame(self, frame_class):
         new_frame = frame_class(self)
         if self._frame is not None:
@@ -36,7 +32,7 @@ class PongApp(tk.Tk):
         self._frame = new_frame
         self._frame.pack()
 
-    def MQTT():
+    def MQTT(self):
         print('ldkqsjfl')
         def on_message(client, callback, msg):
             if paddle == " ":
@@ -81,12 +77,13 @@ class PongApp(tk.Tk):
         client.connect("84.197.165.225", port=667)
         client.subscribe("broker/groep9")
 
-        while not GUIStarted:
-            print("WaitingForStart")
+        while not self.GUIStarted:
+            #print("WaitingForStart")
+            pass
 
-        client.publish("broker/groep9", "Connect", qos=1)
+        client.publish("broker/groep9", "Connect")
 
-        while not gameStarted:
+        while not self.gameStarted:
             print("MQTT Waiting")
 
         GPIO.add_event_detect(3, GPIO.RISING, callback=upButton, bouncetime=300)
@@ -97,7 +94,7 @@ class PongApp(tk.Tk):
 
         GPIO.add_event_detect(7, GPIO.RISING, callback=SpeedButtonSwitch, bouncetime=300)
 
-        while gamestarted:
+        while self.gamestarted:
             print()
         GPIO.cleanup()
 
@@ -106,6 +103,9 @@ class MainMenu(tk.Frame):
         tk.Frame.__init__(self, master, bg="black")
         tk.Label(self, text="Welcome to the Main Menu", bg="black", fg="white").pack(side="top", fill="x", pady=10)
         tk.Button(self, text="Start Game", command=lambda: master.switch_frame(GameScreen), bg="red").pack()
+        self.job = Thread(target=master.MQTT)
+        print("sdl")
+        self.job.start()
 
 class GameScreen(tk.Frame):      
     def __init__(self, master):
@@ -114,9 +114,9 @@ class GameScreen(tk.Frame):
         self.LPaddlePosYBottom = self.LPaddlePosY + 200
         self.RPaddlePosYBottom = self.RPaddlePosY + 200
 
-        GUIStarted = True
+        master.GUIStarted = True
 
-        while not gameStarted:
+        while not master.gameStarted:
             print("GUI Waiting")
         
         tk.Frame.__init__(self, master, bg="black")

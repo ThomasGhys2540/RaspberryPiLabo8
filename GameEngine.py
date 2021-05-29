@@ -1,3 +1,4 @@
+
 #!/usr/bin/python3
 
 #import GameMath
@@ -40,3 +41,16 @@ class Ball(Circle):
 	def __init__(self, pos, r, vector = Vector(0, 0)):
 		self.vector = vector
 		super(Ball, self).__init__(pos, r)
+
+ballPos = Point(WINDOWWIDTH / 2, WINDOWHEIGHT / 2)
+LPaddlePos = Point(0, (WINDOWHEIGHT / 2) - (PADDLEHEIGHT / 2))
+RPaddlePos = Point(WINDOWWIDTH - PADDLEWIDTH, (WINDOWHEIGHT / 2) - (PADDLEHEIGHT / 2))
+
+startVector = Vector(random, random).unitVect() * BALLSTARTSPEED
+
+ball = Ball(ballPos, BALLWIDTH / 2, startVector)
+LPaddle = Rectangle(LPaddlePos, PADDLEHEIGHT, PADDLEWIDTH)
+RPaddle = Rectangle(RPaddlePos, PADDLEHEIGHT, PADDLEWIDTH)
+
+P1Connected = false;
+P2Connected = false;

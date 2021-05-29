@@ -67,7 +67,7 @@ class PongApp(tk.Tk):
         def SpeedButtonSwitch(channel):
             if speed == 0:
                 speed = 1
-            else
+            else:
                 speed = 0
             UpdateBroker()
             
@@ -77,12 +77,12 @@ class PongApp(tk.Tk):
         client.connect("84.197.165.225", 667)
         client.subscribe("broker/groep9")
 
-        while !GUIStarted:
+        while not GUIStarted:
             print("WaitingForStart")
 
         client.publish("broker/groep9", "Connect", qos=1)
 
-        while !gameStarted:
+        while not gameStarted:
             print("MQTT Waiting")
 
         GPIO.add_event_detect(3, GPIO.RISING, callback=upButton, bouncetime=300)
@@ -94,7 +94,7 @@ class PongApp(tk.Tk):
         GPIO.add_event_detect(7, GPIO.RISING, callback=SpeedButtonSwitch, bouncetime=300)
 
         while gamestarted:
-            
+            print()
         GPIO.cleanup()
 
 class MainMenu(tk.Frame):
@@ -112,7 +112,7 @@ class GameScreen(tk.Frame):
 
         GUIStarted = True
 
-        while !gameStarted:
+        while not gameStarted:
             print("GUI Waiting")
         
         tk.Frame.__init__(self, master, bg="black")

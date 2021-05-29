@@ -2,20 +2,20 @@
 import tkinter as tk
 import paho.mqtt.client as paho
 import Broker
-
+from threading import Thread
 
 class PongApp(tk.Tk):
     def __init__(self):
         tk.Tk.__init__(self)
         self._frame = None
         self.switch_frame(MainMenu)
-        client = paho.Client()
-        client.on_connect = Broker.on_connect
-        client.on_subscribe = Broker.on_subscribe
-        client.on_message = Broker.on_message
-        client.on_publish = Broker.on_publish
-        client.connect("broker.mqttdashboard.com", 1883)
-        client.subscribe("broker/groep9")
+
+        paddle = " "
+        direction = "S"
+        speed = 0
+        askedSide = False
+        gameStarted = False
+        GUIStarted = False
 
     def switch_frame(self, frame_class):
         new_frame = frame_class(self)
@@ -23,6 +23,32 @@ class PongApp(tk.Tk):
             self._frame.destroy()
         self._frame = new_frame
         self._frame.pack()
+
+    def MQTT():
+        def on_message(client, userdata, msg):
+            if paddle == " ":
+                paddle = str(msg.payload)[1]
+                askedSide = False
+                client.publish("broker/groep9", "Connected", qos=1)
+            elif str(msg.payload) == "Start":
+                gameStarted = True
+
+        client = paho.Client()
+        
+        client.on_message = on_message
+        client.connect("broker.mqttdashboard.com", 1883)
+        client.subscribe("broker/groep9")
+
+        while !GUIStarted:
+            print("WaitingForStart")
+
+        client.publish("broker/groep9", "Connect", qos=1)
+
+        while !gameStarted:
+            print("MQTT Waiting")
+
+       while gamestarted:
+           
 
 class MainMenu(tk.Frame):
     def __init__(self, master):
@@ -36,6 +62,11 @@ class GameScreen(tk.Frame):
         self.RPaddlePosY = 300
         self.LPaddlePosYBottom = self.LPaddlePosY + 200
         self.RPaddlePosYBottom = self.RPaddlePosY + 200
+
+        GUIStarted = True
+
+        while !gameStarted:
+            print("GUI Waiting")
         
         tk.Frame.__init__(self, master, bg="black")
         self.canvas = tk.Canvas(master, bg="black", width=1080, height=800)

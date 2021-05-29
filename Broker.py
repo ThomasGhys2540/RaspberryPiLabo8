@@ -28,8 +28,7 @@ def on_publish(client, userdata, msg):
  print("Message has been send")
 
 def on_message(client, userdata, msg):
- message = str(msg.payload)
- print("Message that has been received: "+ message)
+ return str(msg.payload)
 
 def on_disconnect(client, userdata, rc):
  print("Disconnecting with result code " + str(rc))

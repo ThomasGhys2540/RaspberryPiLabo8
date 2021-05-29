@@ -33,7 +33,7 @@ class Vector:
 	def __init__(self, x, y):
 		self.x = x
 		self.y = y
-		self.magnitude = sqrt(pow(x, 2) + pow(y, 2))
+		self.magnitude = sqrt(x ** 2 + y ** 2)
 
 	def __add__(self, other):
 		if type(other) == Vector:
@@ -86,16 +86,11 @@ class Vector:
 	def __invert__(self):
 		return -self
 
-	def magnitude(self):
-		return sqrt((self.x * self.x) + (self.y * self.y))
-
 	def unitVect(self):
-		return Vector(self.x / self.magnitude(), self.y / self.magnitude)
+		return Vector(self.x / self.magnitude, self.y / self.magnitude)
 		
 class Circle:
 	def __init__(self, pos, r):
-		if not type(pos) == Point:
-			raise TypeError("'pos' must be a Point")
 		self.pos = pos
 		self.r = r
 
@@ -135,8 +130,6 @@ class Circle:
 
 class Rectangle:
 	def __init__(self, pos, height, width):
-		if not type(pos) == Point:
-			raise TypeError("'pos' must be a Point")
 		self.pos = pos
 		self.height = height
 		self.width = width

@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 # Multi-frame tkinter application v2.3
 import tkinter as tk
 import paho.mqtt.client as paho

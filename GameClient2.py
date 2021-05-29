@@ -12,20 +12,21 @@ GPIO.setup(7, GPIO.IN)
 
 class PongApp(tk.Tk):
     def __init__(self):
+        print("lkdqjf")
         tk.Tk.__init__(self)
         self._frame = None
         self.switch_frame(MainMenu)
 
-        paddle = " "
-        direction = "S"
-        speed = 0
-        askedSide = False
-        gameStarted = False
-        GUIStarted = False
+        self.paddle = " "
+        self.direction = "S"
+        self.speed = 0
+        self.askedSide = False
+        self.gameStarted = False
+        self.GUIStarted = False
 
-        mqtt = Thread(target=MQTT)
-
-        mqtt.start
+        self.job = Thread(target=MQTT)
+        print("sdl")
+        self.job.start()
 
     def switch_frame(self, frame_class):
         new_frame = frame_class(self)
@@ -35,8 +36,10 @@ class PongApp(tk.Tk):
         self._frame.pack()
 
     def MQTT():
-        def on_message(client, userdata, msg):
+        print('ldkqsjfl')
+        def on_message(client, callback, msg):
             if paddle == " ":
+                print("test")
                 paddle = str(msg.payload)[1]
                 askedSide = False
                 client.publish("broker/groep9", "Connected", qos=1)
@@ -74,7 +77,7 @@ class PongApp(tk.Tk):
             
         client = paho.Client()
         
-        client.connect("84.197.165.225", 667)
+        client.connect("84.197.165.225", port=667)
         client.subscribe("broker/groep9")
 
         while not GUIStarted:

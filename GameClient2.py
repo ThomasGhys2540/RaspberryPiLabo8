@@ -3,6 +3,12 @@ import tkinter as tk
 import paho.mqtt.client as paho
 import Broker
 from threading import Thread
+import RPi.GPIO as GPIO
+
+GPIO.setmode(GPIO.BCM)
+GPIO.setup(3, GPIO.IN)
+GPIO.setup(5, GPIO.IN)
+GPIO.setup(7, GPIO.IN)
 
 class PongApp(tk.Tk):
     def __init__(self):
@@ -16,6 +22,10 @@ class PongApp(tk.Tk):
         askedSide = False
         gameStarted = False
         GUIStarted = False
+
+        mqtt = Thread(target=MQTT)
+
+        job1.start
 
     def switch_frame(self, frame_class):
         new_frame = frame_class(self)
@@ -32,7 +42,35 @@ class PongApp(tk.Tk):
                 client.publish("broker/groep9", "Connected", qos=1)
             elif str(msg.payload) == "Start":
                 gameStarted = True
+        def UpdateBroker():
+            message = paddle + direction + str(speed)
+            client.publish("broker/groep9", message)
+        
+        def upButton(channel):
+            direction = "U"
+            UpdateBroker()
+            
+        def downButton(channel):
+            direction = "D"
+            UpdateBroker()
 
+        def ReleaseUpButton(channel):
+            if direction == "U":
+                direction = "S"
+                UpdateBroker()
+
+        def ReleaseDownButton(channel):
+            if direction == "D":
+                direction = "S"
+                UpdateBroker()
+
+        def SpeedButtonSwitch(channel):
+            if speed == 0:
+                speed = 1
+            else
+                speed = 0
+            UpdateBroker()
+            
         client = paho.Client()
         
         client.on_message = on_message
@@ -47,8 +85,17 @@ class PongApp(tk.Tk):
         while !gameStarted:
             print("MQTT Waiting")
 
-       while gamestarted:
-           
+        GPIO.add_event_detect(3, GPIO.RISING, callback=upButton, bouncetime=300)
+        GPIO.add_event_detect(3, GPIO.FALLING, callback=ReleaseUpButton, bouncetime=300)
+
+        GPIO.add_event_detect(5, GPIO.RISING, callback=downButton, bouncetime=300)
+        GPIO.add_event_detect(5, GPIO.FALLING, callback=ReleaseDownButton, bouncetime=300)
+
+        GPIO.add_event_detect(7, GPIO.RISING, callback=SpeedButtonSwitch, bouncetime=300)
+
+        while gamestarted:
+            
+        GPIO.cleanup()
 
 class MainMenu(tk.Frame):
     def __init__(self, master):

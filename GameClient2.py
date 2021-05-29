@@ -25,7 +25,7 @@ class PongApp(tk.Tk):
 
         mqtt = Thread(target=MQTT)
 
-        job1.start
+        mqtt.start
 
     def switch_frame(self, frame_class):
         new_frame = frame_class(self)

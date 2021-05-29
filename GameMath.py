@@ -8,9 +8,7 @@ class Point:
 		self.y = y
 
 	def __add__(self, other):
-		if type(other) == Vector:
-			return Point(self.x + other.x, self.y + other.y)
-		raise TypeError("Only a Vector can be added to a Point")
+		return Point(self.x + other.x, self.y + other.y)
 
 	def __iadd__(self, other):
 		self = self + other
@@ -95,11 +93,7 @@ class Circle:
 		self.r = r
 
 	def __add__(self, other):
-		if type(other) == Vector:
-			return Circle(self.pos + other, self.r)
-		if type(other) == int or type(other) == float:
-			return Circle(self.pos, self.r + other)
-		raise TypeError(type(other) + " cannot be added to a Circle")
+		return Circle(self.pos + other, self.r)
 
 	def __iadd__(self, other):
 		self = self + other

@@ -5,28 +5,16 @@ import os
 
 game = False
 
-answeredFirst = False;
-
 def on_message(client, userdata, msg):
 	global game
 	if not game:
-		if str(msg.payload) == "PL":
+		if "PL" in str(msg.payload) or "PR" in str(msg.payload):
 			print("Sending message")
 			client.publish("broker/groep9", "Connected")
-			client.publish("broker/groep9", "Connect")
-		elif str(msg.payload) == "PR":
-			print("Sending message")
-			client.publish("broker/groep9", "Connected")
+		elif "Start" in str(msg.payload):
 			game = True
-	else:
-		clear()
-		coords = str(msg.payload).split(';')
-		print("===============")
-		for received in coords:
-			print(received)
-		print("===============")
 
-def loopForever(self):
+def loopForever():
 	client.loop_forever()
 
 def stop(self):
@@ -45,4 +33,12 @@ client.subscribe("broker/groep9")
 
 client.publish("broker/groep9", "Connect")
 
-client.loop_forever()
+mqtt = Thread(target=loopForever)
+mqtt.start()
+
+while not game:
+	pass
+
+while game:
+	x = input()
+	client.publish("broker/groep9", x)

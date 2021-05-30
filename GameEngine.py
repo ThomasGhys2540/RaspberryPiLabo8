@@ -37,10 +37,10 @@ class Ball(Circle):
 class Paddle(Rectangle):
 	def __init__(self, pos, height, width, movement = 0):
 		self.movement = movement
-		Rectanlge.__init__(self, pos, height, width)
+		Rectangle.__init__(self, pos, height, width)
 
 	def move(self):
-		self.pos.y += movement
+		self.pos.y += self.movement
 
 class Game:
 	def __init__(self, ball, paddleL, paddleR, fps):
@@ -215,7 +215,7 @@ class Game:
 			if self.state == "lobby":
 				lobby(str(msg.payload))
 			elif self.state == "game":
-				movePaddle(str(ms.payload))
+				movePaddle(str(msg.payload))
 
 		self.client.on_message = on_message
 

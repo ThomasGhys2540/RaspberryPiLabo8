@@ -151,8 +151,8 @@ class Game:
 				#Center ball above paddle
 				if self.ball.pos.y < self.paddleR.pos.y:
 					if self.ball.pos.y + self.ball.r >= self.paddleR.pos.y:
-				 		angle = 0
-				  		tempVec = Vector(0, 0)
+						angle = 0
+						tempVec = Vector(0, 0)
 
 						if self.ball.vector.y < 0:
 							angle = (float(abs((self.paddleR.pos.y + PADDLEHEIGHT / 2) - self.ball.pos.y)) / (PADDLEHEIGHT / 2 + self.ball.r))

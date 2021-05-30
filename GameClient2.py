@@ -38,6 +38,12 @@ class PongApp(tk.Tk):
         self.RPaddleNewPosBottomY = self.RPaddleNewPosY + 200
         self.RScore = 0
         self.Lscore = 0
+        
+        self.canvas = tk.Canvas(self, bg="black", width=0, height=0)
+        self.LeftPaddle = self.canvas.create_rectangle(0, 0 , 0, 0, fill="white")
+        self.RightPaddle = self.canvas.create_rectangle(0, 0, 0, 0, fill="red")
+        self.Ball = self.canvas.create_oval(0, 0 0, master.BallNewPosBottomY, fill="blue")
+        self.canvas.pack()
 
     def switch_frame(self, frame_class):
         new_frame = frame_class(self)
@@ -78,7 +84,8 @@ class PongApp(tk.Tk):
                 self.RPaddlePrevPosY = self.RPaddleNewPosY
                 update = list_data[5].split(':')[1]
                 self.RPaddleNewPosY = int(update.split('.')[0])
-                GameScreen.Movement(self)
+                master = self
+                GameScreen.Movement(master)
                 
         def UpdateBroker():
             message = self.paddle + self.direction + str(speed)
@@ -164,11 +171,11 @@ class GameScreen(tk.Frame):
         self.canvas.pack()
         tk.Button(self, text="End the Game!", command=lambda: master.switch_frame(VictoryScreen), bg="red").pack()      
         
-    def Movement(self):
-        self.LPY = self.LPaddlePrevPosY - self.LPaddleNewPosY
-        self.RPY = self.RPaddlePrevPosY - self.RPaddleNewPosY
-        self.BPX = self.BallPrevPosX - self.BallNewPosX
-        self.BPY = self.BallPrevPosY - self.BallNewPosY
+    def Movement(master):
+        self.LPY = master.LPaddlePrevPosY - master.LPaddleNewPosY
+        self.RPY = master.RPaddlePrevPosY - master.RPaddleNewPosY
+        self.BPX = master.BallPrevPosX - master.BallNewPosX
+        self.BPY = master.BallPrevPosY - master.BallNewPosY
         self.canvas.move(self.LeftPaddle, 0, self.LPY)
         self.canvas.move(self.RightPaddle, 0, self.RPY)
         self.canvas.move(self.Ball, self.BPX, self.BPY)

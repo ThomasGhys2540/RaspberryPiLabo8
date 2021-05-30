@@ -21,11 +21,11 @@ PADDLEHEIGHT = 200
 PADDLEWIDTH = 50
 
 BALLSIZE = 50
-BALLSTARTSPEED = 5
+BALLSTARTSPEED = 100
 
 FPS = 10
 
-PADDLESPEED = 4
+PADDLESPEED = 90
 
 class Timer():
 	def __init__(self):
@@ -127,9 +127,9 @@ class Game:
 						tempVec = Vector(0, 0)
 
 						if self.ball.vector.y < 0:
-							angle = -(1 - (float(abs((self.paddleL.pos.y + PADDLEHEIGHT / 2) - self.ball.pos.y)) / (PADDLEHEIGHT / 2 + self.ball.r)))
+							angle = (1 - (float(abs((self.paddleL.pos.y + PADDLEHEIGHT / 2) - self.ball.pos.y)) / (PADDLEHEIGHT / 2 + self.ball.r)))
 						else:
-							angle = (float(abs((self.paddleL.pos.y + PADDLEHEIGHT / 2) - self.ball.pos.y)) / (PADDLEHEIGHT / 2 + self.ball.r))
+							angle = -(float(abs((self.paddleL.pos.y + PADDLEHEIGHT / 2) - self.ball.pos.y)) / (PADDLEHEIGHT / 2 + self.ball.r))
 
 						tempVec = Vector(abs(ball.vector.x), -abs(ball.vector.y))
 						tempVec = Vector(tempVec.x * math.cos(angle) - tempVec.y * math.sin(angle), tempVec.x * math.sin(angle) + tempVec.y * math.cos(angle))
@@ -137,13 +137,7 @@ class Game:
 
 				#Center ball in front of paddle
 				else:
-					angle = (float(abs((self.paddleL.pos.y + PADDLEHEIGHT / 2) - self.ball.pos.y)) / (PADDLEHEIGHT / 2 + self.ball.r))
 					tempVec = Vector(abs(ball.vector.x), ball.vector.y)
-
-					if ball.vector.y > 0:
-						angle = -angle
-
-					tempVec = Vector(tempVec.x * math.cos(angle) - tempVec.y * math.sin(angle), tempVec.x * math.sin(angle) + tempVec.y * math.cos(angle))
 					self.ball.vector = tempVec
 
 			#Enough right to hit paddle
@@ -159,7 +153,7 @@ class Game:
 						else:
 							angle = -(1 - (float(abs((self.paddleR.pos.y + PADDLEHEIGHT / 2) - self.ball.pos.y)) / (PADDLEHEIGHT / 2 + self.ball.r)))
 
-						tempVec = Vector(abs(ball.vector.x), -abs(ball.vector.y))
+						tempVec = Vector(-abs(ball.vector.x), -abs(ball.vector.y))
 						tempVec = Vector(tempVec.x * math.cos(angle) - tempVec.y * math.sin(angle), tempVec.x * math.sin(angle) + tempVec.y * math.cos(angle))
 						self.ball.vector = tempVec
 				#Center ball under paddle
@@ -173,18 +167,12 @@ class Game:
 						else:
 							angle = (float(abs((self.paddleR.pos.y + PADDLEHEIGHT / 2) - self.ball.pos.y)) / (PADDLEHEIGHT / 2 + self.ball.r))
 
-						tempVec = Vector(abs(ball.vector.x), -abs(ball.vector.y))
+						tempVec = Vector(-abs(ball.vector.x), abs(ball.vector.y))
 						tempVec = Vector(tempVec.x * math.cos(angle) - tempVec.y * math.sin(angle), tempVec.x * math.sin(angle) + tempVec.y * math.cos(angle))
 						self.ball.vector = tempVec
 				#Center ball in front of paddle
 				else:
-					angle = (float(abs((self.paddleL.pos.y + PADDLEHEIGHT / 2) - self.ball.pos.y)) / (PADDLEHEIGHT / 2 + self.ball.r))
-					tempVec = Vector(abs(ball.vector.x), ball.vector.y)
-
-					if self.ball.vector.y > 0:
-						angle = -angle
-
-					tempVec = Vector(tempVec.x * math.cos(angle) - tempVec.y * math.sin(angle), tempVec.x * math.sin(angle) + tempVec.y * math.cos(angle))
+					tempVec = Vector(-abs(ball.vector.x), ball.vector.y)
 					self.ball.vector = tempVec
 
 		vertCollision()
@@ -193,14 +181,14 @@ class Game:
 
 	def MQTT(self):
 		def lobby(msg):
-			if msg == "Connect":
+			if "Connect" in msg and "Connected" not in msg:
 				print("Answering connection request")
 				if self.playersConnectRequested == 0:
 					self.client.publish("broker/groep9", "PL")
 				else:
 					self.client.publish("broker/groep9", "PR")
 				self.playersConnectRequested += 1
-			elif msg == "Connected":
+			elif "Connected" in msg:
 				self.playersConnected += 1
 				print(str(self.playersConnected) + " players connected")
 
@@ -237,14 +225,14 @@ class Game:
 		self.client.loop_forever()
 
 	def UpdateClock(self):
-		while True:
+		while self.state is "game":
 			sleep(float(1) / self.fps)
 			message = "bx:" + str(self.KeepInRange(math.floor(self.ball.pos.x - self.ball.r), 0, WINDOWWIDTH)) + ";"
 			message += "by:" + str(self.KeepInRange(math.floor(self.ball.pos.y - self.ball.r), 0, WINDOWHEIGHT)) + ";"
-			message += "ls:" + str(self.scoreL) + ";"
 			message += "ly:" + str(self.KeepInRange(math.floor(self.paddleL.pos.y), 0, WINDOWHEIGHT)) + ";"
-			message += "rs:" + str(self.scoreR) + ";"
-			message += "ry:" + str(self.KeepInRange(math.floor(self.paddleR.pos.y), 0, WINDOWHEIGHT))
+			message += "ry:" + str(self.KeepInRange(math.floor(self.paddleR.pos.y), 0, WINDOWHEIGHT)) + ";"
+			message += "ls:" + str(self.scoreL) + ";"
+			message += "rs:" + str(self.scoreR)
 			self.client.publish("broker/groep9", message)
 
 	def startGame(self):
@@ -263,7 +251,7 @@ class Game:
 
 		global timer
 		timer.Update()
-		
+
 		while self.state == "game":
 			sleep(float(1) / self.fps)
 			timer.Update()
@@ -271,6 +259,21 @@ class Game:
 			self.ball.move()
 			self.paddleL.move()
 			self.paddleR.move()
+			if self.scoreL is 10 or self.scoreR is 10:
+				self.state = "victory"
+
+		sleep(float(1) / self.fps)
+		message = "bx:" + str(self.KeepInRange(math.floor(self.ball.pos.x - self.ball.r), 0, WINDOWWIDTH)) + ";"
+		message += "by:" + str(self.KeepInRange(math.floor(self.ball.pos.y - self.ball.r), 0, WINDOWHEIGHT)) + ";"
+		message += "ly:" + str(self.KeepInRange(math.floor(self.paddleL.pos.y), 0, WINDOWHEIGHT)) + ";"
+		message += "ry:" + str(self.KeepInRange(math.floor(self.paddleR.pos.y), 0, WINDOWHEIGHT)) + ";"
+		message += "ls:" + str(self.scoreL) + ";"
+		message += "rs:" + str(self.scoreR)
+		self.client.publish("broker/groep9", message)
+		if self.scroreL is 10:
+			self.client.publish("broker/groep9", "WL")
+		else:
+			self.client.publish("broker/groep9", "WR")
 
 ballPos = Point(WINDOWWIDTH / 2, WINDOWHEIGHT / 2)
 LPaddlePos = Point(0, (WINDOWHEIGHT / 2) - (PADDLEHEIGHT / 2))

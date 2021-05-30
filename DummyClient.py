@@ -13,18 +13,10 @@ def on_message(client, userdata, msg):
 		if str(msg.payload) == "PL":
 			print("Sending message")
 			client.publish("broker/groep9", "Connected")
-			client.publish("broker/groep9", "Connect")
 		elif str(msg.payload) == "PR":
 			print("Sending message")
 			client.publish("broker/groep9", "Connected")
 			game = True
-	else:
-		clear()
-		coords = str(msg.payload).split(';')
-		print("===============")
-		for received in coords:
-			print(received)
-		print("===============")
 
 def loopForever(self):
 	client.loop_forever()

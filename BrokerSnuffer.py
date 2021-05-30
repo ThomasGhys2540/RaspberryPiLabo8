@@ -4,7 +4,6 @@ import os
 
 def on_message(client, userdata, msg):
 	coords = str(msg.payload).split(';')
-	print("===============")
 	for received in coords:
 		print(received)
 	print("===============")

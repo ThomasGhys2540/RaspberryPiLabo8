@@ -25,3 +25,6 @@
 ## Libraries used
 - Tkinter
 - RPi.GPIO
+- threading
+- math
+- paho

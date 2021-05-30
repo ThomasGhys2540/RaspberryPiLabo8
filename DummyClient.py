@@ -13,6 +13,7 @@ def on_message(client, userdata, msg):
 		if str(msg.payload) == "PL":
 			print("Sending message")
 			client.publish("broker/groep9", "Connected")
+			client.publish("broker/groep9", "Connect")
 		elif str(msg.payload) == "PR":
 			print("Sending message")
 			client.publish("broker/groep9", "Connected")
@@ -44,14 +45,4 @@ client.subscribe("broker/groep9")
 
 client.publish("broker/groep9", "Connect")
 
-client.loop_start()
-
-while not answeredFirst:
-	pass
-
-client.loop_stop()
-
-client.publish("broker/groep9", "Connect")
-
-while True:
-	client.loop_forever()
+client.loop_forever()

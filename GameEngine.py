@@ -24,36 +24,6 @@ BALLSTARTSPEED = 5
 
 FPS = 10
 
-def CheckBallPaddleCollision(ball, paddle):
-	#Ball Y in paddle range
-	if ball.pos.y > paddle.top and ball.pos.y < paddle.bottom:
-		if ball.pos.x > paddle.left:
-			if ball.pos.x - ball.r <= paddle.right:
-				ball.vector = Vector(abs(ball.vector.x), ball.vector.y)
-		else:
-			if ball.pos.x + ball.r >= paddle.left:
-				ball.vector = Vector(-abs(ball.vector.x), ball.vector.y)
-	#Ball Y under paddle range
-	elif ball.pos.y > paddle.bottom:
-		if (ball.pos - Point(paddle.right, paddle.bottom)).magnitude < ball.r:
-			xFact = 0
-			if ball.pos.x > paddel.right:
-				xFact = 1
-			else:
-				xFact = -1
-			yDif = float(ball.pos.y - paddle.bottom)
-			ball.vector = Vector(xFact * (1 - (yDif / ball.r)) * abs(ball.vector.x), (yDif / ball.r) * abs(ball.vector.y))
-	#Ball Y above paddle range
-	elif ball.pos.y < paddle.top:
-		if (ball.pos - Point(paddle.right, paddle.top)).magnitude < ball.r:
-			xFact = 0
-			if ball.pos.x > paddle.right:
-				xFact = 1
-			else:
-				xFact = -1
-			yDif = float(paddle.top - ball.pos.y)
-			ball.vector = Vector(xFact * (1 - (yDif / ball.r)) * abs(ball.vector.x), -(yDif / ball.r) * abs(ball.vector.y))
-
 class Ball(Circle):
 	def __init__(self, pos, r, vector = Vector(0, 0)):
 		self.vector = vector
@@ -81,29 +51,109 @@ class Game:
 		if num > high:
 			num = high
 		return num
-	
+
 	def Collision(self):
 		def vertCollision():
-			if self.ball.pos.y - self.ball.r / 2 <= 0 or self.ball.pos.y + self.ball.r / 2 >= WINDOWHEIGHT:
+			if self.ball.pos.y - self.ball.r <= 0 or self.ball.pos.y + self.ball.r / 2 >= WINDOWHEIGHT:
 				self.ball.vector = Vector(self.ball.vector.x, -self.ball.vector.y)
 
 		def horCollision():
-			if self.ball.pos.x - self.ball.r / 2 <= 0:
+			if self.ball.pos.x - self.ball.r <= 0:
 				self.scoreR += 1
 				print("One Point To gRyfindor!")
 				collidedSide()
 				
-			if self.ball.pos.x + self.ball.r / 2 >= WINDOWWIDTH:
+			if self.ball.pos.x + self.ball.r >= WINDOWWIDTH:
 				self.scoreL += 1
 				print("One Point To sLytherin!")
 				collidedSide()
 
 		def collidedSide():
-			self.ball.pos = Point(WINDOWWIDTH / 2 - self.ball.r / 2, WINDOWHEIGHT / 2 - self.ball.r / 2)
+			self.ball.pos = Point(WINDOWWIDTH / 2 - self.ball.r, WINDOWHEIGHT / 2 - self.ball.r)
 			self.ball.vector = Vector(random.randrange(-1, 2, 2) * random.uniform(0.5, 1), random.randrange(-1, 2, 2) * random.uniform(0, 0.5)).unitVect() * BALLSTARTSPEED
-		
+	
+		def collPaddles():
+			if self.ball.pos.x - self.ball.r <= PADDLEWIDTH:
+				if self.ball.pos.y < self.paddleL.pos.y:
+					if self.ball.pos.y + self.ball.r >= self.paddleL.pos.y:
+						angle = 0
+						tempVec = Vector(0, 0)
+
+						if self.ball.vector.y < 0:
+							angle = (float(abs((self.paddleL.pos.y + PADDLEHEIGHT / 2) - self.ball.pos.y)) / (PADDLEHEIGHT / 2 + self.ball.r))
+						else:
+							angle = -(float(abs((self.paddleL.pos.y + PADDLEHEIGHT / 2) - self.ball.pos.y)) / (PADDLEHEIGHT / 2 + self.ball.r))
+
+						tempVec = Vector(abs(ball.vector.x), -abs(ball.vector.y))
+						tempVec = Vector(tempVec.x * math.cos(angle) - tempVec.y * math.sin(angle), tempVec.x * math.sin(angle) + tempVec.y * math.cos(angle))
+						self.ball.vector = tempVec
+
+				elif self.ball.pos.y > self.paddleL.pos.y + PADDLEHEIGHT:
+					if self.ball.pos.y - self.ball.r <= self.paddleL.pos.y + PADDLEHEIGHT:
+						angle = 0
+						tempVec = Vector(0, 0)
+
+						if self.ball.vector.y < 0:
+							angle = (float(abs((self.paddleL.pos.y + PADDLEHEIGHT / 2) - self.ball.pos.y)) / (PADDLEHEIGHT / 2 + self.ball.r))
+						else:
+							angle = -(float(abs((self.paddleL.pos.y + PADDLEHEIGHT / 2) - self.ball.pos.y)) / (PADDLEHEIGHT / 2 + self.ball.r))
+
+						tempVec = Vector(abs(ball.vector.x), -abs(ball.vector.y))
+						tempVec = Vector(tempVec.x * math.cos(angle) - tempVec.y * math.sin(angle), tempVec.x * math.sin(angle) + tempVec.y * math.cos(angle))
+						self.ball.vector = tempVec
+
+				else:
+					angle = (float(abs((self.paddleL.pos.y + PADDLEHEIGHT / 2) - self.ball.pos.y)) / (PADDLEHEIGHT / 2 + self.ball.r))
+					tempVec = Vector(abs(ball.vector.x), ball.vector.y)
+
+					if ball.vector.y > 0:
+						angle = -angle
+
+					tempVec = Vector(tempVec.x * math.cos(angle) - tempVec.y * math.sin(angle), tempVec.x * math.sin(angle) + tempVec.y * math.cos(angle))
+					self.ball.vector = tempVec
+
+			elif self.ball.pos.x + self.ball.r >= WINDOWWIDTH - PADDLEWIDTH:
+				if self.ball.pos.y < self.paddleR.pos.y:
+					if self.ball.pos.y + self.ball.r >= self.paddleR.pos.y:
+				 		angle = 0
+				  		tempVec = Vector(0, 0)
+
+						if self.ball.vector.y < 0:
+							angle = (float(abs((self.paddleR.pos.y + PADDLEHEIGHT / 2) - self.ball.pos.y)) / (PADDLEHEIGHT / 2 + self.ball.r))
+						else:
+							angle = -(float(abs((self.paddleR.pos.y + PADDLEHEIGHT / 2) - self.ball.pos.y)) / (PADDLEHEIGHT / 2 + self.ball.r))
+
+						tempVec = Vector(abs(ball.vector.x), -abs(ball.vector.y))
+						tempVec = Vector(tempVec.x * math.cos(angle) - tempVec.y * math.sin(angle), tempVec.x * math.sin(angle) + tempVec.y * math.cos(angle))
+						self.ball.vector = tempVec
+
+				elif self.ball.pos.y > self.paddleR.pos.y + PADDLEHEIGHT:
+					if self.ball.pos.y - self.ball.r <= self.paddleR.pos.y + PADDLEHEIGHT:
+						angle = 0
+						tempVec = Vector(0, 0)
+
+						if self.ball.vector.y < 0:
+							angle = (float(abs((self.paddleR.pos.y + PADDLEHEIGHT / 2) - self.ball.pos.y)) / (PADDLEHEIGHT / 2 + self.ball.r))
+						else:
+							angle = -(float(abs((self.paddleR.pos.y + PADDLEHEIGHT / 2) - self.ball.pos.y)) / (PADDLEHEIGHT / 2 + self.ball.r))
+
+						tempVec = Vector(abs(ball.vector.x), -abs(ball.vector.y))
+						tempVec = Vector(tempVec.x * math.cos(angle) - tempVec.y * math.sin(angle), tempVec.x * math.sin(angle) + tempVec.y * math.cos(angle))
+						self.ball.vector = tempVec
+
+				else:
+					angle = (float(abs((self.paddleL.pos.y + PADDLEHEIGHT / 2) - self.ball.pos.y)) / (PADDLEHEIGHT / 2 + self.ball.r))
+					tempVec = Vector(abs(ball.vector.x), ball.vector.y)
+
+					if self.ball.vector.y > 0:
+						angle = -angle
+
+					tempVec = Vector(tempVec.x * math.cos(angle) - tempVec.y * math.sin(angle), tempVec.x * math.sin(angle) + tempVec.y * math.cos(angle))
+					self.ball.vector = tempVec
+
 		vertCollision()
 		horCollision()
+		collPaddles()
 
 	def MQTT(self):
 		def lobby(msg):
@@ -132,8 +182,8 @@ class Game:
 	def UpdateClock(self):
 		while True:
 			sleep(float(1) / self.fps)
-			message = "bx:" + str(self.KeepInRange(math.floor(self.ball.pos.x - self.ball.r / 2), 0, WINDOWWIDTH)) + ";"
-			message += "by:" + str(self.KeepInRange(math.floor(self.ball.pos.y - self.ball.r / 2), 0, WINDOWHEIGHT)) + ";"
+			message = "bx:" + str(self.KeepInRange(math.floor(self.ball.pos.x - self.ball.r), 0, WINDOWWIDTH)) + ";"
+			message += "by:" + str(self.KeepInRange(math.floor(self.ball.pos.y - self.ball.r), 0, WINDOWHEIGHT)) + ";"
 			message += "ls:" + str(self.scoreL) + ";"
 			message += "ly:" + str(self.KeepInRange(math.floor(self.paddleL.pos.y), 0, WINDOWHEIGHT)) + ";"
 			message += "rs:" + str(self.scoreR) + ";"
@@ -147,6 +197,9 @@ class Game:
 		while self.state == "lobby":
 			if self.playersConnected == 2:
 				self.state = "game"
+
+		print("Start game")
+		self.client.publish("broker/groep9", "Start")
 
 		clock = Thread(target=self.UpdateClock)
 		clock.start()

@@ -10,6 +10,7 @@ from GameMath import Rectangle
 import math
 import random
 from time import sleep
+from time import time
 from threading import Thread
 import paho.mqtt.client as paho
 
@@ -26,13 +27,23 @@ FPS = 10
 
 PADDLESPEED = 4
 
+class Timer():
+	def __init__(self):
+		self.prevTime = time()
+		self.deltaTime = self.prevTime - time()
+
+	def Update(self):
+		self.deltaTime = time() - self.prevTime
+		self.prevTime = time()
+
 class Ball(Circle):
 	def __init__(self, pos, r, vector = Vector(0, 0)):
 		self.vector = vector
 		Circle.__init__(self, pos, r)
 
 	def move(self):
-		self.pos += self.vector
+		global timer
+		self.pos += self.vector * timer.deltaTime
 
 class Paddle(Rectangle):
 	def __init__(self, pos, height, width, movement = 0):
@@ -40,7 +51,8 @@ class Paddle(Rectangle):
 		Rectangle.__init__(self, pos, height, width)
 
 	def move(self):
-		self.pos.y += self.movement
+		global timer
+		self.pos.y += self.movement * timer.deltaTime
 
 class Game:
 	def __init__(self, ball, paddleL, paddleR, fps):
@@ -60,7 +72,7 @@ class Game:
 		self.playersConnected = 0
 		self.playersConnectRequested = 0
 
-		#Update frequency set
+		#Frequency variables
 		self.fps = fps
 
 	def KeepInRange(self, num, low, high):
@@ -249,8 +261,12 @@ class Game:
 		clock = Thread(target=self.UpdateClock)
 		clock.start()
 
+		global timer
+		timer.Update()
+		
 		while self.state == "game":
 			sleep(float(1) / self.fps)
+			timer.Update()
 			self.Collision()
 			self.ball.move()
 			self.paddleL.move()
@@ -265,6 +281,8 @@ startVector = Vector(random.randrange(-1, 2, 2) * random.uniform(0.5, 1), random
 ball = Ball(ballPos, BALLSIZE / 2, startVector)
 LPaddle = Paddle(LPaddlePos, PADDLEHEIGHT, PADDLEWIDTH)
 RPaddle = Paddle(RPaddlePos, PADDLEHEIGHT, PADDLEWIDTH)
+
+timer = Timer()
 
 game = Game(ball, LPaddle, RPaddle, FPS)
 game.startGame()

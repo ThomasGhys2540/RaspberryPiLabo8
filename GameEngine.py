@@ -238,21 +238,21 @@ class Game:
 
 		def movePaddle(msg):
 			speed = PADDLESPEED
-			if msg[2] == '1':
+			if '1' in msg:
 				speed *= 2
-			if msg[0] == 'L':
-				if msg[1] == 'U':
+			if 'L' in msg:
+				if 'U' in msg:
 					self.padlleL.movement = -speed
-				elif msg[1] == 'D':
+				elif 'D' in msg:
 					self.paddleL.movement = speed
-				elif msg[1] == 'S':
+				elif 'S' in msg:
 					self.paddleL.movement = 0
-			elif msg[0] == 'R':
-				if msg[1] == 'U':
+			elif 'R' in msg:
+				if 'U' in msg:
 					self.paddleR.movement = -speed
-				elif msg[1] == 'D':
+				elif 'D' in msg:
 					self.paddleR.movement = speed
-				elif msg[1] == 'S':
+				elif 'S' in msq:
 					self.paddleR.movement = 0
 
 		def on_message(client, userdata, msg):

@@ -98,9 +98,9 @@ class PongApp(tk.Tk):
                     
                     for x in range (3):
                         GPIO.output(startled, GPIO.HIGH)
-                        time.sleep(100)
+                        sleep(1)
                         GPIO.output(startled, GPIO.LOW)
-                        time.sleep(100)
+                        sleep(1)
                     
                     self.gameStarted = True
                     

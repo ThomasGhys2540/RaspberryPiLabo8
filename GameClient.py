@@ -15,7 +15,7 @@ playerledl = 33
 playerledr = 35
 startled = 37
 
-GPIO.setmode(GPIO.BCM)
+GPIO.setmode(GPIO.BOARD)
 
 GPIO.setup(up, GPIO.IN)
 GPIO.setup(down, GPIO.IN)
@@ -112,10 +112,10 @@ class PongApp(tk.Tk):
             elif self.ScoreL is 10 or self.ScoreR is 10:
                 self.ChangeScreen(VictoryScreen)
             else:
-                print("Game is playing")
+                #print("Game is playing")
                 
                 data = str(msg.payload)
-                print(data)
+                #print(data)
                 if "r" in data:
                     list_data = data.split(';')
                     
@@ -148,38 +148,39 @@ class PongApp(tk.Tk):
                     update = list_data[5].split(':')[1]
                     self.ScoreR = int(update.split('\'')[0])
                     
-                    print("Ball: " + str(self.BallNewPosX) + ", " + str(self.BallNewPosY))
+                    #print("Ball: " + str(self.BallNewPosX) + ", " + str(self.BallNewPosY))
                     self.frames[GameScreen].Movement()
 
-        def UpdateBroker(self):
+        def UpdateBroker():
             self.message = self.PlayerPaddle + self.Direction + str(self.Speed)
+            print(str(self.message))
             client.publish("broker/groep9", self.message)
 
-        def UpButton(self):
+        def UpButton(channel):
             print("up button")
             if self.Direction is "U":
                 self.Direction = "S"
             else:
                 self.Direction = "U"
 
-            self.UpdateBroker()
+            UpdateBroker()
 
-        def DownButton(self):
+        def DownButton(channel):
             print("down button")
             if self.Direction is "D":
                 self.Direction = "S"
             else:
                 self.Direction = "D"
 
-            self.UpdateBroker()
+            UpdateBroker()
 
-        def SpeedButton(self):
+        def SpeedButton(channel):
             if int(self.Speed) == 0:
                 self.Speed = 1
             else:
                 self.Speed = 0
 
-            self.UpdateBroker()
+            UpdateBroker()
         
         client = paho.Client()
         client.on_message = on_message
@@ -189,8 +190,8 @@ class PongApp(tk.Tk):
         client.publish("broker/groep9", "Connect")
         self.askedSide = True
 
-        GPIO.add_event_detect(up, GPIO.BOTH, callback=UpButton, bouncetime=300)
-        GPIO.add_event_detect(down, GPIO.BOTH, callback=DownButton, bouncetime=300)
+        GPIO.add_event_detect(up, GPIO.RISING, callback=UpButton, bouncetime=300)
+        GPIO.add_event_detect(down, GPIO.RISING, callback=DownButton, bouncetime=300)
         GPIO.add_event_detect(speed, GPIO.RISING, callback=SpeedButton, bouncetime=300)
         
         client.loop_forever()

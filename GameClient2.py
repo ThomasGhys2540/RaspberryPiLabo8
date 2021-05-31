@@ -7,185 +7,245 @@ from threading import Thread
 import RPi.GPIO as GPIO
 from time import sleep
 
+up = 3
+down = 5
+speed = 7
+
+playerledl = 33
+playerledr = 35
+startled = 37
+
 GPIO.setmode(GPIO.BCM)
-GPIO.setup(3, GPIO.IN)
-GPIO.setup(5, GPIO.IN)
-GPIO.setup(7, GPIO.IN)
+
+GPIO.setup(up, GPIO.IN)
+GPIO.setup(down, GPIO.IN)
+GPIO.setup(speed, GPIO.IN)
+
+GPIO.setup(startled, GPIO.OUT)
+GPIO.setup(playerledl, GPIO.OUT)
+GPIO.setup(playerledr, GPIO.OUT)
 
 class PongApp(tk.Tk):
     def __init__(self):
-        print("lkdqjf")
         tk.Tk.__init__(self)
-        self._frame = None
-        self.switch_frame(MainMenu)
-        self.paddle = " "
-        self.direction = "S"
-        self.speed = 0
-        self.askedSide = False
+        container = tk.Frame(self)
+        container.pack(side="top", fill="both", expand=True)
+        container.grid_rowconfigure(0, weight=1)
+        container.grid_columnconfigure(0, weight=1)
+
+        self.frames = {}
         self.gameStarted = False
-        self.GUIStarted = False
+        self.askedSide = False
+        
+        self.PlayerPaddle = "*"
+        self.Direction = "S"
+        self.Speed = 0
+        
         self.BallPrevPosX = 0
         self.BallPrevPosY = 0
-        self.BallNewPosX = 0
-        self.BallNewPosY = 0
-        self.BallNewPosBottomX = self.BallNewPosX + 50
-        self.BallNewPosBottomY = self.BallNewPosY + 50
-        self.LPaddlePrevPosY = 0
-        self.RPaddlePrevPosY = 0
-        self.LPaddleNewPosY = 0
-        self.RPaddleNewPosY = 0
-        self.LPaddleNewPosBottomY = self.LPaddleNewPosY + 200
-        self.RPaddleNewPosBottomY = self.RPaddleNewPosY + 200
-        self.RScore = 0
-        self.Lscore = 0
+        self.BallNewPosX = 515
+        self.BallNewPosY = 375
+        self.BallNewPosBottomX = 565
+        self.BallNewPosBottomY = 425
         
-        self.canvas = tk.Canvas(self, bg="black", width=0, height=0)
-        self.LeftPaddle = self.canvas.create_rectangle(0, 0 , 0, 0, fill="white")
-        self.RightPaddle = self.canvas.create_rectangle(0, 0, 0, 0, fill="red")
-        self.Ball = self.canvas.create_oval(0, 0 0, master.BallNewPosBottomY, fill="blue")
-        self.canvas.pack()
-
-    def switch_frame(self, frame_class):
-        new_frame = frame_class(self)
-        if self._frame is not None:
-            self._frame.destroy()
-        self._frame = new_frame
-        self._frame.pack()
-
+        self.LPaddlePrevPosY = 0
+        self.LPaddleNewPosY = 300
+        self.LPaddleNewPosBottomY = 500
+        
+        self.RPaddlePrevPosY = 0
+        self.RPaddleNewPosY = 300
+        self.RPaddleNewPosBottomY = 500
+        
+        self.ScoreL = 0
+        self.ScoreR = 0
+        self.Rounds = 0
+        
+        for F in (MainMenu, GameScreen, VictoryScreen):
+            frame = F(container, self)
+            self.frames[F] = frame
+            frame.grid(row=0, column=0, sticky="nsew")
+            
+        self.ChangeScreen(MainMenu)
+    
+    def ChangeScreen(self, X):
+        frame = self.frames[X]
+        frame.tkraise()
+    
     def MQTT(self):
-        print('ldkqsjfl')
-        def on_message(client, callback, msg):
+        def on_message(client, userdata, msg):
             if not self.gameStarted:
-                if self.askedSide and str(msg.payload) is not "b'Connect'":
-                    print("test")
-                    paddle = str(str(msg.payload)[1])
-                    print(str(msg.payload))
-                    self.askedSide = False
+                print("Game hasn't started yet!")
+                
+                if self.askedSide and not "Connect" in str(msg.payload):
+                    print("Has received a side")
+                    
+                    self.PlayerPaddle = str(msg.payload)
+                    
+                    if "PR" in self.PlayerPaddle:
+                        self.PlayerPaddle = "PR"
+                        
+                        GPIO.OUTPUT(playerledl, GPIO.LOW)
+                        GPIO.OUTPUT(playerledr, GPIO.HIGH)
+                    elif "PL" in self.PlayerPaddle:
+                        self.PlayerPaddle = "PL"
+                        
+                        GPIO.OUTPUT(playerledl, GPIO.LOW)
+                        GPIO.OUTPUT(playerledr, GPIO.HIGH)
+                    
+                    print(self.PlayerPaddle)
+                    
                     client.publish("broker/groep9", "Connected")
-                elif str(msg.payload) == "b'Start'":
+                    self.askedSide = False
+                    
+                elif "Start" in str(msg.payload):
+                    print("Game will start now")
+                    
+                    for x in range (3):
+                        GPIO.OUTPUT(startled, GPIO.HIGH)
+                        time.sleep(100)
+                        GPIO.OUTPUT(startled, GPIO.LOW)
+                        time.sleep(100)
+                    
                     self.gameStarted = True
-                    print("has started")
+                    
+                    self.frames[GameScreen].InitialDraw()
+                    
+            elif self.ScoreL is 10 or self.ScoreR is 10:
+                self.ChangeScreen(VictoryScreen)
             else:
+                print("Game is playing")
+                
                 data = str(msg.payload)
+                print(data)
                 list_data = data.split(';')
+                
                 self.BallPrevPosX = self.BallNewPosX
                 update = list_data[0].split(':')[1]
                 self.BallNewPosX = int(update.split('.')[0])
+                
                 self.BallPrevPosY = self.BallNewPosY
                 update = list_data[1].split(':')[1]
                 self.BallNewPosY = int(update.split('.')[0])
-                update = list_data[2].split(':')[1]
-                self.Lscore = int(update.split('.')[0])
-                self.LPaddlePrevPosY = self.LPaddleNewPosY
-                update = list_data[3].split(':')[1]
-                self.LPaddleNewPosY = int(update.split('.')[0])
-                update = list_data[4].split(':')[1]
-                self.Rscore = int(update.split('.')[0])
-                self.RPaddlePrevPosY = self.RPaddleNewPosY
-                update = list_data[5].split(':')[1]
-                self.RPaddleNewPosY = int(update.split('.')[0])
-                master = self
-                GameScreen.Movement(master)
                 
+                self.BallNewPosBottomX = self.BallNewPosX + 50
+                self.BallNewPosBottomY = self.BallNewPosY + 50
+                
+                self.LPaddlePrevPosY = self.LPaddleNewPosY
+                update = list_data[2].split(':')[1]
+                self.LPaddleNewPosY = int(update.split('.')[0])
+                
+                self.LPaddleNewPosBottomY = self.LPaddleNewPosY + 200
+                
+                self.RPaddlePrevPosY = self.RPaddleNewPosY
+                update = list_data[3].split(':')[1]
+                self.RPaddleNewPosY = int(update.split('.')[0])
+                
+                self.RPaddleNewPosBottomY = self.RPaddleNewPosY + 200
+                
+                update = list_data[4].split(':')[1]
+                self.ScoreL = int(update)
+                
+                update = list_data[5].split(':')[1]
+                self.ScoreR = int(update.split('.')[0])
+                
+                update = list_data[6].split(':')[1]
+                self.Rounds = int(update.split('.'))
+                
+                print("Ball: " + str(self.BallNewPosX) + ", " + str(self.BallNewPosY))
+                self.frames[GameScreen].Movement()
         def UpdateBroker():
-            message = self.paddle + self.direction + str(speed)
-            client.publish("broker/groep9", message)
+            self.message = self.PlayerPaddle + self.Direction + str(self.Speed)
+            client.publish("broker/groep9", self.message)
         
-        def upButton(channel):
-            if self.direction is "U":
-                self.direction = "S"
+        def UpButton():
+            if self.Direction is "U":
+                self.Direction = "S"
             else:
-                self.direction = "U"
-            UpdateBroker()
+                self.Direction = "U"
             
-        def downButton(channel):
-            if self.direction is "D":
-                self.direction = "S"
-            else:
-                self.direction = "D"
-            UpdateBroker()
-
-        def SpeedButtonSwitch(channel):
-            if speed == 0:
-                speed = 1
-            else:
-                speed = 0
-            UpdateBroker()
+            self.UpdateBroker()
         
-        def WaitFor():
-            client.loop_forever()
+        def DownButton():
+            if self.Direction is "D":
+                self.Direction = "S"
+            else:
+                self.Direction = "D"
             
+            self.UpdateBroker()
+        
+        def SpeedButton():
+            if self.Speed is 0:
+                self.Speed = 1
+            else:
+                self.Speed = 0
+            
+            self.UpdateBroker()
+        
         client = paho.Client()
         client.on_message = on_message
         client.connect("84.197.165.225", port=667)
         client.subscribe("broker/groep9")
-
-        while not self.GUIStarted:
-            #print("WaitingForStart")
-            pass
-
+        
         client.publish("broker/groep9", "Connect")
         self.askedSide = True
-        job_Loop = Thread(target = WaitFor)
-        job_Loop.start()
-
-        while not self.gameStarted:
-            #print("MQTT Waiting")
-            pass
-
-        GPIO.add_event_detect(3, GPIO.BOTH, callback=upButton, bouncetime=300)
-
-        GPIO.add_event_detect(5, GPIO.BOTH, callback=downButton, bouncetime=300)
-
-        GPIO.add_event_detect(7, GPIO.RISING, callback=SpeedButtonSwitch, bouncetime=300)
         
-        self.switch_frame(GameScreen)
-        print("I wonder why")
+        GPIO.add_event_detect(up, GPIO.BOTH, callback=self.UpButton, bouncetime=300)
+        GPIO.add_event_detect(down, GPIO.BOTH, callback=self.DownButton, bouncetime=300)
+        GPIO.add_event_detect(speed, GPIO.RISING, callback=self.SpeedButton, bouncetime=300)
         
-        while self.gamestarted:
-            print()
-        GPIO.cleanup()
+        client.loop_forever()
 
+    def StartGame(self):
+        self.ChangeScreen(GameScreen)
+        
+        self.StartMQTT = Thread(target = self.MQTT)
+        self.StartMQTT.start()
+        
+        
 class MainMenu(tk.Frame):
-    def __init__(self, master):
-        tk.Frame.__init__(self, master, bg="black")
+    def __init__(self, master, controller):
+        tk.Frame.__init__(self, master)
+        self.controller = controller
+        
         tk.Label(self, text="Welcome to the Main Menu", bg="black", fg="white").pack(side="top", fill="x", pady=10)
-        tk.Button(self, text="Start Game", command=lambda: master.switch_frame(GameScreen), bg="red").pack()
-        self.job = Thread(target=master.MQTT)
-        print("sdl")
-        self.job.start()
-
-class GameScreen(tk.Frame):      
-    def __init__(self, master):
-        master.GUIStarted = True
-
-        while not master.gameStarted:
-            #print("GUI Waiting")
-            pass
+        tk.Button(self, text="Start Game", command=lambda: controller.StartGame(), bg="red").pack(side="bottom", fill="x", pady=10)
         
+        print("MainMenu has been succesfully initialised")
+
+class GameScreen(tk.Frame):
+    def __init__(self, master, controller):
         tk.Frame.__init__(self, master, bg="black")
-        self.canvas = tk.Canvas(master, bg="black", width=1080, height=800)
-        self.LeftPaddle = self.canvas.create_rectangle(0, master.LPaddleNewPosY , 50, master.LPaddleNewPosBottomY, fill="white")
-        self.RightPaddle = self.canvas.create_rectangle(1030, master.RPaddleNewPosY, 1080, master.RPaddleNewPosBottomY, fill="red")
-        self.Ball = self.canvas.create_oval(master.BallNewPosX, master.BallNewPosY, master.BallNewPosBottomX, master.BallNewPosBottomY, fill="blue")
-        self.canvas.pack()
-        tk.Button(self, text="End the Game!", command=lambda: master.switch_frame(VictoryScreen), bg="red").pack()      
+        self.controller = controller
+        self.master = master
         
-    def Movement(master):
-        self.LPY = master.LPaddlePrevPosY - master.LPaddleNewPosY
-        self.RPY = master.RPaddlePrevPosY - master.RPaddleNewPosY
-        self.BPX = master.BallPrevPosX - master.BallNewPosX
-        self.BPY = master.BallPrevPosY - master.BallNewPosY
-        self.canvas.move(self.LeftPaddle, 0, self.LPY)
-        self.canvas.move(self.RightPaddle, 0, self.RPY)
-        self.canvas.move(self.Ball, self.BPX, self.BPY)
+        print("GameScreen has been succesfully initialised")
+        
+    def InitialDraw(self):
+        self.canvas = tk.Canvas(self.controller, bg="black", width=1080, height=800)
+        self.LPaddle = self.canvas.create_rectangle(0, self.controller.LPaddleNewPosY, 50, self.controller.LPaddleNewPosBottomY, fill="white")
+        self.RPaddle = self.canvas.create_rectangle(1030, self.controller.RPaddleNewPosY, 1080, self.controller.RPaddleNewPosBottomY, fill="white")
+        self.Ball = self.canvas.create_oval(self.controller.BallNewPosX, self.controller.BallNewPosY, self.controller.BallNewPosBottomX, self.controller.BallNewPosBottomY, fill="white")
+        self.canvas.pack(side="top")
+    
+    def Movement(self):
+        self.BallX = self.controller.BallNewPosX - self.controller.BallPrevPosX
+        self.BallY = self.controller.BallNewPosY - self.controller.BallPrevPosY
+        self.canvas.move(self.Ball, self.BallX, self.BallY)
+        
+        self.LPaddleY = self.controller.LPaddleNewPosY - self.controller.LPaddlePrevPosY
+        self.canvas.move(self.controller.LPaddle, 0, self.LPaddleY)
+        
+        self.RPaddleY = self.controller.RPaddleNewPosY - self.controller.RPaddlePrevPosY
+        self.canvas.move(self.controller.RPaddle, 0, self.RPaddleY)
 
 class VictoryScreen(tk.Frame):
-    def __init__(master):
+    def __init__(self, master, controller):
         tk.Frame.__init__(self, master, bg="black")
-        tk.Label(self, text="This is the end there is nothing beyond here", bg="black", fg="white").pack(side="top", fill="x", pady=10)
-        tk.Button(self, text="Return to the Main menu", command=lambda: master.switch_frame(MainMenu), bg="red").pack()
-
+        self.controller = controller
+        tk.Label(self, text="Welcome to the Victory Menu", bg="black", fg="white").pack(side="top", fill="x", pady=10)
+        tk.Button(self, text="Main Menu", command=lambda: controller.ChangeScreen(MainMenu), bg="red").pack()
+        print("VictoryScreen has been succesfully initialised")
+        
 if __name__ == "__main__":
     app = PongApp()
     app.mainloop()

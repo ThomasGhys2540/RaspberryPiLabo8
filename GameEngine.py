@@ -259,7 +259,7 @@ class Game:
 			if self.state == "lobby":
 				lobby(str(msg.payload))
 			elif self.state == "game":
-				movePaddle(str(msg.payload).split('\'')[1])
+				movePaddle(str(msg.payload))
 
 		self.client.on_message = on_message
 

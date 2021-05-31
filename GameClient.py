@@ -15,7 +15,7 @@ playerledl = 33
 playerledr = 35
 startled = 37
 
-GPIO.setmode(GPIO.BCM)
+GPIO.setmode(GPIO.BOARD)
 
 GPIO.setup(up, GPIO.IN)
 GPIO.setup(down, GPIO.IN)
@@ -80,13 +80,13 @@ class PongApp(tk.Tk):
                     if "PR" in self.PlayerPaddle:
                         self.PlayerPaddle = "PR"
                         
-                        GPIO.OUTPUT(playerledl, GPIO.LOW)
-                        GPIO.OUTPUT(playerledr, GPIO.HIGH)
+                        GPIO.output(playerledl, GPIO.LOW)
+                        GPIO.output(playerledr, GPIO.HIGH)
                     elif "PL" in self.PlayerPaddle:
                         self.PlayerPaddle = "PL"
                         
-                        GPIO.OUTPUT(playerledl, GPIO.LOW)
-                        GPIO.OUTPUT(playerledr, GPIO.HIGH)
+                        GPIO.output(playerledl, GPIO.LOW)
+                        GPIO.output(playerledr, GPIO.HIGH)
                     
                     print(self.PlayerPaddle)
                     
@@ -97,9 +97,9 @@ class PongApp(tk.Tk):
                     print("Game will start now")
                     
                     for x in range (3):
-                        GPIO.OUTPUT(startled, GPIO.HIGH)
+                        GPIO.output(startled, GPIO.HIGH)
                         time.sleep(100)
-                        GPIO.OUTPUT(startled, GPIO.LOW)
+                        GPIO.output(startled, GPIO.LOW)
                         time.sleep(100)
                     
                     self.gameStarted = True

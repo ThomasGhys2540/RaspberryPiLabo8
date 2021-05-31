@@ -15,7 +15,7 @@ playerledl = 33
 playerledr = 35
 startled = 37
 
-GPIO.setmode(GPIO.BOARD)
+GPIO.setmode(GPIO.BCM)
 
 GPIO.setup(up, GPIO.IN)
 GPIO.setup(down, GPIO.IN)

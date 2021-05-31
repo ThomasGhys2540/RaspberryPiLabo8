@@ -252,7 +252,7 @@ class Game:
 					self.paddleR.movement = -speed
 				elif 'D' in msg:
 					self.paddleR.movement = speed
-				elif 'S' in msq:
+				elif 'S' in msg:
 					self.paddleR.movement = 0
 
 		def on_message(client, userdata, msg):

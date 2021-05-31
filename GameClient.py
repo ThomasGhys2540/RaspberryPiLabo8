@@ -70,7 +70,7 @@ class PongApp(tk.Tk):
     def MQTT(self):
         def on_message(client, userdata, msg):
             if not self.gameStarted:
-                print("Game hasn't started yet")
+                print("Game hasn't started yet!")
                 
                 if self.askedSide and not "Connect" in str(msg.payload):
                     print("Has received a side")

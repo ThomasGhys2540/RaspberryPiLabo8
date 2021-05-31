@@ -7,10 +7,23 @@ from threading import Thread
 import RPi.GPIO as GPIO
 from time import sleep
 
+up = 3
+down = 5
+speed = 7
+
+playerledl = 12
+playerledr = 13
+startled = 14
+
 GPIO.setmode(GPIO.BCM)
-GPIO.setup(3, GPIO.IN)
-GPIO.setup(5, GPIO.IN)
-GPIO.setup(7, GPIO.IN)
+
+GPIO.setup(up, GPIO.IN)
+GPIO.setup(down, GPIO.IN)
+GPIO.setup(speed, GPIO.IN)
+
+GPIO.setup(startled, GPIO.OUT)
+GPIO.setup(playerledl, GPIO.OUT)
+GPIO.setup(playerledr, GPIO.OUT)
 
 class PongApp(tk.Tk):
     def __init__(self):

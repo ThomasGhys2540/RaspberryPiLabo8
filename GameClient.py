@@ -146,6 +146,34 @@ class PongApp(tk.Tk):
                 
                 print("Ball: " + str(self.BallNewPosX) + ", " + str(self.BallNewPosY))
                 self.frames[GameScreen].Movement()
+
+        def UpdateBroker():
+            self.message = self.PlayerPaddle + self.Direction + str(self.Speed)
+            client.publish("broker/groep9", self.message)
+
+        def UpButton():
+            if self.Direction is "U":
+                self.Direction = "S"
+            else:
+                self.Direction = "U"
+
+            self.UpdateBroker()
+
+        def DownButton():
+            if self.Direction is "D":
+                self.Direction = "S"
+            else:
+                self.Direction = "D"
+
+            self.UpdateBroker()
+
+        def SpeedButton():
+            if self.Speed is 0:
+                self.Speed = 1
+            else:
+                self.Speed = 0
+
+            self.UpdateBroker()
         
         client = paho.Client()
         client.on_message = on_message
@@ -154,6 +182,10 @@ class PongApp(tk.Tk):
         
         client.publish("broker/groep9", "Connect")
         self.askedSide = True
+
+        GPIO.add_event_detect(up, GPIO.BOTH, callback=self.UpButton, bouncetime=300)
+        GPIO.add_event_detect(down, GPIO.BOTH, callback=self.DownButton, bouncetime=300)
+        GPIO.add_event_detect(speed, GPIO.RISING, callback=self.SpeedButton, bouncetime=300)
         
         client.loop_forever()
 

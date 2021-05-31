@@ -317,7 +317,7 @@ class Game:
 		message += "r:" + str(self.round) + ";"
 
 		self.client.publish("broker/groep9", message)
-		if self.scroreL > self.scoreR:
+		if self.scoreL > self.scoreR:
 			self.client.publish("broker/groep9", "WL")
 		else:
 			self.client.publish("broker/groep9", "WR")

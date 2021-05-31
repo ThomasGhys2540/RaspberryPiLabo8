@@ -85,8 +85,8 @@ class PongApp(tk.Tk):
                     elif "PL" in self.PlayerPaddle:
                         self.PlayerPaddle = "PL"
                         
-                        GPIO.output(playerledl, GPIO.LOW)
-                        GPIO.output(playerledr, GPIO.HIGH)
+                        GPIO.output(playerledl, GPIO.HIGH)
+                        GPIO.output(playerledr, GPIO.LOW)
                     
                     print(self.PlayerPaddle)
                     
@@ -195,10 +195,10 @@ class GameScreen(tk.Frame):
         self.canvas.move(self.Ball, self.BallX, self.BallY)
         
         self.LPaddleY = self.controller.LPaddleNewPosY - self.controller.LPaddlePrevPosY
-        self.canvas.move(self.controller.LPaddle, 0, self.LPaddleY)
+        self.canvas.move(self.LPaddle, 0, self.LPaddleY)
         
         self.RPaddleY = self.controller.RPaddleNewPosY - self.controller.RPaddlePrevPosY
-        self.canvas.move(self.controller.RPaddle, 0, self.RPaddleY)
+        self.canvas.move(self.RPaddle, 0, self.RPaddleY)
 
 class VictoryScreen(tk.Frame):
     def __init__(self, master, controller):

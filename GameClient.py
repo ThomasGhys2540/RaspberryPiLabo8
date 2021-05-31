@@ -129,7 +129,7 @@ class PongApp(tk.Tk):
                 self.ScoreL = int(update)
                 
                 update = list_data[5].split(':')[1]
-                self.ScoreR = int(update.split("'")[0])
+                self.ScoreR = int(update.split('\'')[0])
                 
                 print("Ball: " + str(self.BallNewPosX) + ", " + str(self.BallNewPosY))
                 self.frames[GameScreen].Movement()

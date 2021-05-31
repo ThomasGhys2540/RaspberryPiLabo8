@@ -64,6 +64,12 @@ class Game:
 		#GameVariables
 		self.scoreL = 0
 		self.scoreR = 0
+		self.paddleHitsL = 0
+		self.paddleHitsR = 0
+
+		self.paddleHit = False
+
+		self.round = 1
 
 		#GameState and Connection
 		self.state = "lobby"
@@ -89,12 +95,22 @@ class Game:
 
 		def horCollision():
 			if self.ball.pos.x - self.ball.r <= 0:
-				self.scoreR += 1
+				self.scoreR += self.paddleHitsR * 5
+				self.paddleHitsL = 0
+				self.paddleHitsR = 0
+				self.paddleHit = True
+				self.round += 1
+
 				print("One Point To gRyfindor!")
 				collidedSide()
 
 			if self.ball.pos.x + self.ball.r >= WINDOWWIDTH:
-				self.scoreL += 1
+				self.scoreL += self.paddleHitsL * 5
+				self.paddleHitsL = 0
+				self.paddleHitsR = 0
+				self.paddleHit = True
+				self.round += 1
+ 
 				print("One Point To sLytherin!")
 				collidedSide()
 
@@ -108,6 +124,10 @@ class Game:
 				#Center ball above paddle
 				if self.ball.pos.y < self.paddleL.pos.y:
 					if self.ball.pos.y + self.ball.r >= self.paddleL.pos.y:
+						if not self.paddleHit:
+							self.paddleHitsL += 1
+							self.paddleHit = True
+
 						angle = 0
 						tempVec = Vector(0, 0)
 
@@ -123,6 +143,10 @@ class Game:
 				#Center paddle under paddle
 				elif self.ball.pos.y > self.paddleL.pos.y + PADDLEHEIGHT:
 					if self.ball.pos.y - self.ball.r <= self.paddleL.pos.y + PADDLEHEIGHT:
+						if not self.paddleHit:
+							self.paddleHitsL += 1
+							self.paddleHit = True
+
 						angle = 0
 						tempVec = Vector(0, 0)
 
@@ -134,9 +158,15 @@ class Game:
 						tempVec = Vector(abs(ball.vector.x), -abs(ball.vector.y))
 						tempVec = Vector(tempVec.x * math.cos(angle) - tempVec.y * math.sin(angle), tempVec.x * math.sin(angle) + tempVec.y * math.cos(angle))
 						self.ball.vector = tempVec
+					else:
+						self.paddleHit = False
 
 				#Center ball in front of paddle
 				else:
+					if not self.paddleHit:
+						self.paddleHitsL += 1
+						self.paddleHit = True
+
 					tempVec = Vector(abs(ball.vector.x), ball.vector.y)
 					self.ball.vector = tempVec
 
@@ -145,6 +175,10 @@ class Game:
 				#Center ball above paddle
 				if self.ball.pos.y < self.paddleR.pos.y:
 					if self.ball.pos.y + self.ball.r >= self.paddleR.pos.y:
+						if not self.paddleHit:
+							self.paddleHitsL += 1
+							self.paddleHit = True
+
 						angle = 0
 						tempVec = Vector(0, 0)
 
@@ -156,9 +190,14 @@ class Game:
 						tempVec = Vector(-abs(ball.vector.x), -abs(ball.vector.y))
 						tempVec = Vector(tempVec.x * math.cos(angle) - tempVec.y * math.sin(angle), tempVec.x * math.sin(angle) + tempVec.y * math.cos(angle))
 						self.ball.vector = tempVec
+					else:
+						paddleHit = False
 				#Center ball under paddle
 				elif self.ball.pos.y > self.paddleR.pos.y + PADDLEHEIGHT:
 					if self.ball.pos.y - self.ball.r <= self.paddleR.pos.y + PADDLEHEIGHT:
+						if not self.paddleHit:
+							self.paddleHitsL += 1
+							self.paddleHit = True
 						angle = 0
 						tempVec = Vector(0, 0)
 
@@ -172,8 +211,13 @@ class Game:
 						self.ball.vector = tempVec
 				#Center ball in front of paddle
 				else:
+					if not self.paddleHit:
+						self.paddleHitsL += 1
+						self.paddleHit = True
 					tempVec = Vector(-abs(ball.vector.x), ball.vector.y)
 					self.ball.vector = tempVec
+			else:
+				self.paddleHit = False
 
 		vertCollision()
 		horCollision()
@@ -215,7 +259,7 @@ class Game:
 			if self.state == "lobby":
 				lobby(str(msg.payload))
 			elif self.state == "game":
-				movePaddle(str(msg.payload))
+				movePaddle(str(msg.payload).split('\'')[1])
 
 		self.client.on_message = on_message
 
@@ -259,18 +303,21 @@ class Game:
 			self.ball.move()
 			self.paddleL.move()
 			self.paddleR.move()
-			if self.scoreL is 10 or self.scoreR is 10:
+			if self.round is 10:
 				self.state = "victory"
 
 		sleep(float(1) / self.fps)
+
 		message = "bx:" + str(self.KeepInRange(math.floor(self.ball.pos.x - self.ball.r), 0, WINDOWWIDTH)) + ";"
 		message += "by:" + str(self.KeepInRange(math.floor(self.ball.pos.y - self.ball.r), 0, WINDOWHEIGHT)) + ";"
 		message += "ly:" + str(self.KeepInRange(math.floor(self.paddleL.pos.y), 0, WINDOWHEIGHT)) + ";"
 		message += "ry:" + str(self.KeepInRange(math.floor(self.paddleR.pos.y), 0, WINDOWHEIGHT)) + ";"
 		message += "ls:" + str(self.scoreL) + ";"
-		message += "rs:" + str(self.scoreR)
+		message += "rs:" + str(self.scoreR) + ";"
+		message += "r:" + str(self.round) + ";"
+
 		self.client.publish("broker/groep9", message)
-		if self.scroreL is 10:
+		if self.scroreL > self.scoreR:
 			self.client.publish("broker/groep9", "WL")
 		else:
 			self.client.publish("broker/groep9", "WR")

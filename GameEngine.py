@@ -276,7 +276,8 @@ class Game:
 			message += "ly:" + str(self.KeepInRange(math.floor(self.paddleL.pos.y), 0, WINDOWHEIGHT)) + ";"
 			message += "ry:" + str(self.KeepInRange(math.floor(self.paddleR.pos.y), 0, WINDOWHEIGHT)) + ";"
 			message += "ls:" + str(self.scoreL) + ";"
-			message += "rs:" + str(self.scoreR)
+			message += "rs:" + str(self.scoreR) + ";"
+			message += "r:" + str(self.round) + ";"
 			self.client.publish("broker/groep9", message)
 
 	def startGame(self):

@@ -11,9 +11,9 @@ up = 3
 down = 5
 speed = 7
 
-playerledl = 12
-playerledr = 13
-startled = 14
+playerledl = 33
+playerledr = 35
+startled = 37
 
 GPIO.setmode(GPIO.BCM)
 
@@ -79,8 +79,14 @@ class PongApp(tk.Tk):
                     
                     if "PR" in self.PlayerPaddle:
                         self.PlayerPaddle = "PR"
+                        
+                        GPIO.OUTPUT(playerledl, GPIO.LOW)
+                        GPIO.OUTPUT(playerledr, GPIO.HIGH)
                     elif "PL" in self.PlayerPaddle:
                         self.PlayerPaddle = "PL"
+                        
+                        GPIO.OUTPUT(playerledl, GPIO.LOW)
+                        GPIO.OUTPUT(playerledr, GPIO.HIGH)
                     
                     print(self.PlayerPaddle)
                     
@@ -90,9 +96,16 @@ class PongApp(tk.Tk):
                 elif "Start" in str(msg.payload):
                     print("Game will start now")
                     
+                    for x in range (3):
+                        GPIO.OUTPUT(startled, GPIO.HIGH)
+                        time.sleep(100)
+                        GPIO.OUTPUT(startled, GPIO.LOW)
+                        time.sleep(100)
+                    
                     self.gameStarted = True
                     
                     self.frames[GameScreen].InitialDraw()
+                    
             elif self.ScoreL is 10 or self.ScoreR is 10:
                 self.ChangeScreen(VictoryScreen)
             else:
@@ -180,6 +193,12 @@ class GameScreen(tk.Frame):
         self.BallX = self.controller.BallNewPosX - self.controller.BallPrevPosX
         self.BallY = self.controller.BallNewPosY - self.controller.BallPrevPosY
         self.canvas.move(self.Ball, self.BallX, self.BallY)
+        
+        self.LPaddleY = self.controller.LPaddleNewPosY - self.controller.LPaddlePrevPosY
+        self.canvas.move(self.controller.LPaddle, 0, self.LPaddleY)
+        
+        self.RPaddleY = self.controller.RPaddleNewPosY - self.controller.RPaddlePrevPosY
+        self.canvas.move(self.controller.RPaddle, 0, self.RPaddleY)
 
 class VictoryScreen(tk.Frame):
     def __init__(self, master, controller):

@@ -7,23 +7,23 @@ from threading import Thread
 import RPi.GPIO as GPIO
 from time import sleep
 
-up = 3
-down = 5
-speed = 7
+up = 2
+down = 3
+speed = 4
 
-playerledl = 33
-playerledr = 35
-startled = 37
+playerledl = 13
+playerledr = 19
+startled = 26
 
-GPIO.setmode(GPIO.BOARD)
+GPIO.setmode(GPIO.BCM)
 
-GPIO.setup(up, GPIO.IN)
-GPIO.setup(down, GPIO.IN)
-GPIO.setup(speed, GPIO.IN)
+GPIO.setup(up, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+GPIO.setup(down, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+GPIO.setup(speed, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 
-GPIO.setup(startled, GPIO.OUT)
-GPIO.setup(playerledl, GPIO.OUT)
-GPIO.setup(playerledr, GPIO.OUT)
+GPIO.setup(startled, GPIO.OUT, initial=GPIO.LOW)
+GPIO.setup(playerledl, GPIO.OUT, initial=GPIO.LOW)
+GPIO.setup(playerledr, GPIO.OUT, initial=GPIO.LOW)
 
 class PongApp(tk.Tk):
     def __init__(self):
@@ -78,14 +78,12 @@ class PongApp(tk.Tk):
                 if self.askedSide and not "Connect" in str(msg.payload):
                     print("Has received a side")
                     
-                    self.PlayerPaddle = str(msg.payload)
-                    
-                    if "PR" in self.PlayerPaddle:
+                    if "PR" in str(msg.payload):
                         self.PlayerPaddle = "PR"
                         
                         GPIO.output(playerledl, GPIO.LOW)
                         GPIO.output(playerledr, GPIO.HIGH)
-                    elif "PL" in self.PlayerPaddle:
+                    elif "PL" in str(msg.payload):
                         self.PlayerPaddle = "PL"
                         
                         GPIO.output(playerledl, GPIO.HIGH)

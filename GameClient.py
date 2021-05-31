@@ -36,7 +36,10 @@ class PongApp(tk.Tk):
         self.frames = {}
         self.gameStarted = False
         self.askedSide = False
+        
         self.PlayerPaddle = "*"
+        self.Direction = "S"
+        self.Speed = 0
         
         self.BallPrevPosX = 0
         self.BallPrevPosY = 0
@@ -113,45 +116,47 @@ class PongApp(tk.Tk):
                 
                 data = str(msg.payload)
                 print(data)
-                list_data = data.split(';')
-                
-                self.BallPrevPosX = self.BallNewPosX
-                update = list_data[0].split(':')[1]
-                self.BallNewPosX = int(update.split('.')[0])
-                
-                self.BallPrevPosY = self.BallNewPosY
-                update = list_data[1].split(':')[1]
-                self.BallNewPosY = int(update.split('.')[0])
-                
-                self.BallNewPosBottomX = self.BallNewPosX + 50
-                self.BallNewPosBottomY = self.BallNewPosY + 50
-                
-                self.LPaddlePrevPosY = self.LPaddleNewPosY
-                update = list_data[2].split(':')[1]
-                self.LPaddleNewPosY = int(update.split('.')[0])
-                
-                self.LPaddleNewPosBottomY = self.LPaddleNewPosY + 200
-                
-                self.RPaddlePrevPosY = self.RPaddleNewPosY
-                update = list_data[3].split(':')[1]
-                self.RPaddleNewPosY = int(update.split('.')[0])
-                
-                self.RPaddleNewPosBottomY = self.RPaddleNewPosY + 200
-                
-                update = list_data[4].split(':')[1]
-                self.ScoreL = int(update)
-                
-                update = list_data[5].split(':')[1]
-                self.ScoreR = int(update.split('\'')[0])
-                
-                print("Ball: " + str(self.BallNewPosX) + ", " + str(self.BallNewPosY))
-                self.frames[GameScreen].Movement()
+                if "r" in data:
+                    list_data = data.split(';')
+                    
+                    self.BallPrevPosX = self.BallNewPosX
+                    update = list_data[0].split(':')[1]
+                    self.BallNewPosX = int(update.split('.')[0])
+                    
+                    self.BallPrevPosY = self.BallNewPosY
+                    update = list_data[1].split(':')[1]
+                    self.BallNewPosY = int(update.split('.')[0])
+                    
+                    self.BallNewPosBottomX = self.BallNewPosX + 50
+                    self.BallNewPosBottomY = self.BallNewPosY + 50
+                    
+                    self.LPaddlePrevPosY = self.LPaddleNewPosY
+                    update = list_data[2].split(':')[1]
+                    self.LPaddleNewPosY = int(update.split('.')[0])
+                    
+                    self.LPaddleNewPosBottomY = self.LPaddleNewPosY + 200
+                    
+                    self.RPaddlePrevPosY = self.RPaddleNewPosY
+                    update = list_data[3].split(':')[1]
+                    self.RPaddleNewPosY = int(update.split('.')[0])
+                    
+                    self.RPaddleNewPosBottomY = self.RPaddleNewPosY + 200
+                    
+                    update = list_data[4].split(':')[1]
+                    self.ScoreL = int(update)
+                    
+                    update = list_data[5].split(':')[1]
+                    self.ScoreR = int(update.split('\'')[0])
+                    
+                    print("Ball: " + str(self.BallNewPosX) + ", " + str(self.BallNewPosY))
+                    self.frames[GameScreen].Movement()
 
-        def UpdateBroker():
+        def UpdateBroker(self):
             self.message = self.PlayerPaddle + self.Direction + str(self.Speed)
             client.publish("broker/groep9", self.message)
 
-        def UpButton():
+        def UpButton(self):
+            print("up button")
             if self.Direction is "U":
                 self.Direction = "S"
             else:
@@ -159,7 +164,8 @@ class PongApp(tk.Tk):
 
             self.UpdateBroker()
 
-        def DownButton():
+        def DownButton(self):
+            print("down button")
             if self.Direction is "D":
                 self.Direction = "S"
             else:
@@ -167,8 +173,8 @@ class PongApp(tk.Tk):
 
             self.UpdateBroker()
 
-        def SpeedButton():
-            if self.Speed is 0:
+        def SpeedButton(self):
+            if int(self.Speed) == 0:
                 self.Speed = 1
             else:
                 self.Speed = 0
@@ -183,9 +189,9 @@ class PongApp(tk.Tk):
         client.publish("broker/groep9", "Connect")
         self.askedSide = True
 
-        GPIO.add_event_detect(up, GPIO.BOTH, callback=self.UpButton, bouncetime=300)
-        GPIO.add_event_detect(down, GPIO.BOTH, callback=self.DownButton, bouncetime=300)
-        GPIO.add_event_detect(speed, GPIO.RISING, callback=self.SpeedButton, bouncetime=300)
+        GPIO.add_event_detect(up, GPIO.BOTH, callback=UpButton, bouncetime=300)
+        GPIO.add_event_detect(down, GPIO.BOTH, callback=DownButton, bouncetime=300)
+        GPIO.add_event_detect(speed, GPIO.RISING, callback=SpeedButton, bouncetime=300)
         
         client.loop_forever()
 
